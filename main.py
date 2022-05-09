@@ -27,8 +27,8 @@ def main():
 
     # get factuals from the data to generate counterfactual examples
     factuals = task.load_factuals(json_file_path)
-    fact = factuals.head(1) # take the first factual for simplicity
-    fact = fact[SQUARE_NAMES + ['player']] # remove the label
+    fact = factuals.head(1)  # take the first factual for simplicity
+    fact = fact[SQUARE_NAMES + ['player']]  # remove the label
 
     print('Factual:')
     task.print_instance(fact.values.squeeze())
@@ -51,8 +51,8 @@ def main():
     growing_spheres = GrowingSpheres(task.bb_model, target_action)
     face = FACE(task.dataset[SQUARE_NAMES + ['player']], bb_model=task.bb_model, target_action=target_action, immutable_keys=['player'])
 
-    methods = [growing_spheres]
-    method_names = ['Growing Spheres']
+    methods = [face, dice, growing_spheres]
+    method_names = ['FACE', 'DICE', 'Growing Spheres']
 
     # generate counterfactual examples
     for i, m in enumerate(methods):

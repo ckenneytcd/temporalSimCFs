@@ -9,6 +9,7 @@ data/chess/dataset.csv
 
 engines/chess/stockfish_14.1/
 engines/chess/stockfish_14.1/stockfish_14.1.exe
+
 .idea/
 
 # C extensions
