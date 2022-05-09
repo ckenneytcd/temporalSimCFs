@@ -1,4 +1,4 @@
-
+from src.envs.chess.chess_gym import ChessGymEnv
 from src.envs.chess.chess_task import ChessTask
 from src.envs.chess.chess_util import from_board_to_fen, ACTION_NAMES, COL_NAMES, SQUARE_NAMES
 from src.baselines.DICE import DICE
@@ -8,6 +8,7 @@ from src.baselines.growing_spheres import GrowingSpheres
 
 from src.baselines.relace import ReLACE
 from src.util import seed_everything
+from src.temp_sim.tsa import TSA
 
 
 def main():
@@ -42,6 +43,8 @@ def main():
     mutable_features.remove('player')
     mutable_features.remove('best_move')
 
+    chess_env = ChessGymEnv()
+
     # define feature range (for DICE)
     range_dict = {f: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] for f in mutable_features}
 
@@ -50,9 +53,10 @@ def main():
                 outcome='best_move', mutable_features=mutable_features, range_dict=range_dict)
     growing_spheres = GrowingSpheres(task.bb_model, target_action)
     face = FACE(task.dataset[SQUARE_NAMES + ['player']], bb_model=task.bb_model, target_action=target_action, immutable_keys=['player'])
+    TSA = TSA(chess_env, task.bb_model, target_action=target_action)
 
-    methods = [face, dice, growing_spheres]
-    method_names = ['FACE', 'DICE', 'Growing Spheres']
+    methods = [face, dice, growing_spheres, TSA]
+    method_names = ['FACE', 'DICE', 'Growing Spheres', 'TSA']
 
     # generate counterfactual examples
     for i, m in enumerate(methods):

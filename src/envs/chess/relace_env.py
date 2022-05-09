@@ -1,7 +1,6 @@
 import copy
 import numpy as np
 import gym
-from ding.envs.common import affine_transform
 
 from src.envs.chess.chess_util import from_board_to_fen, is_valid_fen
 
@@ -9,7 +8,7 @@ NUM_FEATURES = 64
 PLAYER_POS = 64
 
 
-class ChessGymEnv(gym.Env):
+class RelaceEnv(gym.Env):
 
     def __init__(self, target_action, fact, lmbda):
         self.state = np.zeros((NUM_FEATURES * 2 + 1, ))
@@ -41,9 +40,9 @@ class ChessGymEnv(gym.Env):
         feature = action['action_type']
         value = action['action_args']
 
-        value = affine_transform(value, min_val=0, max_val=11)
-
-        value = round(value)
+        # value = affine_transform(value, min_val=0, max_val=11)
+        #
+        # value = round(value)
 
         # mark that feature has been changed
         self.state[feature + 65] = 1
