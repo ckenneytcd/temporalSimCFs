@@ -3,10 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-data/
+
 data/chess/
 data/chess/dataset.csv
-engines/
+
 engines/chess/stockfish_14.1/
 engines/chess/stockfish_14.1/stockfish_14.1.exe
 .idea/
