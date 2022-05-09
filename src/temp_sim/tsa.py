@@ -1,4 +1,6 @@
 from src.temp_sim.ReplayBuffer import ReplayBuffer
+import networkx as nx
+import numpy as np
 
 
 class TSA():
@@ -45,10 +47,29 @@ class TSA():
                 step += 1
 
         # Generate graph from dataset
+        node_list = self.replay_buffer.get_state_ids()
+        edge_list = self.replay_buffer.get_edges()
+
+        G = nx.Graph()
+
+        # add nodes and edges
+        G.add_nodes_from(node_list)
+        G.add_edges_from(edge_list)
 
         # Get shortest path from f to cf
+        f_id = self.replay_buffer.get_id_of_state(f)
+        cf_id = self.replay_buffer.get_id_of_state(cf)
 
-        pass
+        # get all shortest paths between nodes
+        s_paths = dict(nx.all_pairs_shortest_path(G))
+        try:
+            # if cf_id is in the list of shortest paths for f_id
+            shortest_path = s_paths[f_id][cf_id]
+        except KeyError():
+            shortest_path = np.inf
+
+        return shortest_path
+
 
     def optimize(self):
         pass

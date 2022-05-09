@@ -33,4 +33,14 @@ class ReplayBuffer():
     def is_full(self):
         return self.count >= self.capacity
 
+    def get_state_ids(self):
+        return np.arange(0, self.state_count)
+
+    def get_edges(self):
+        return self.edge_buffer
+
+    def get_id_of_state(self, state):
+        return np.where(self.state_buffer == state)
+
+
 
