@@ -1,0 +1,296 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+install.packages("devtools")
+install.packages("bigchess")
+install.packages("fastDummies")
+install.packages("lemon")
+install.packages("stringr")
+install.packages("rchess")
+devtools::install_github("dandls/counterfactuals")
+```
+
+```{r}
+library(counterfactuals)
+library(iml)
+library(bigchess)
+library(stringr)
+library(rchess)
+library(lemon)
+library(comprehenr)
+library(fastDummies)
+library(methods)
+```
+
+
+```{r}
+CODE_TO_PIECE <- c('P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k')
+ROWS <- c(1, 2, 3, 4, 5, 6, 7, 8)
+FILES <- c("a", "b", "c", "d", "e", "f", "g", "h")
+SQUARE_NAMES <- to_vec(for (i in FILES) for (j in ROWS) paste(i, as.character(j), sep=""))
+ACTION_NAMES <- to_vec(for (i in SQUARE_NAMES) for (j in SQUARE_NAMES) if (i != j) paste(i, j, sep=""))
+```
+
+```{r}
+engine_path <- "C:\\Users\\Jasmina\\Documents\\PhD\\CARLA\\engines\\chess\\stockfish_14.1\\stockfish_14.1"
+data_path <- "C:\\Users\\Jasmina\\Documents\\PhD\\CARLA\\data\\chess\\dataset.csv"
+```
+
+```{r}
+# loading engine
+eng <- uci_engine(engine_path)
+```
+
+```{r}
+# checks whether fen represents a valid board
+is_valid_fen <- function(fen){
+  if (str_count(fen, "K") != 0) {
+    return(0)
+  }
+  if (str_count(fen, "k") != 1) {
+    return(0)
+  }
+  if (str_count(fen, "P") > 8) {
+    return(0)
+  }
+  if (str_count(fen, "p") > 8) {
+    return(0)
+  }
+  tokens <- str_split(fen, "/")[[1]]
+  first_row <- tokens[1]
+  last_row <- tokens[8]
+  
+  if (str_count(first_row, "p") > 0) {
+    return(0)
+  }
+  if (str_count(last_row, "p") > 0) {
+    return(0)
+  }
+  if (str_count(first_row, "P") > 0) {
+    return(0)
+  }
+  if (str_count(last_row, "P") > 0) {
+    return(0)
+  }
+  
+  fen_pos <- Chess$new(fen)
+  if (length(fen_pos$moves()) == 0) {
+    return(0)
+  }
+  
+  return(1)
+}
+```
+
+```{r}
+# extracts best move as string from engine's response
+get_best_move <- function(position_fen) {
+  print(position_fen)
+  if (is_valid_fen(position_fen) == 1) {
+    eng <- uci_position(eng, fen=position_fen)
+    str_move <- uci_go(eng, depth=10)
+    str_move <- tail(str_move$temp, n=1)
+    tokens <- str_split(str_move, " ")
+    best_move <- tokens[[1]][2]
+  } else {
+    print("Invalid position")
+    best_move <- " "
+  }
+
+  return(best_move)
+}
+```
+
+```{r}
+# loading chess data
+chess_data <- read.csv(file=data_path)
+chess_data <- chess_data[,-1]
+knit_print.data.frame <- lemon_print
+col_names <- colnames(chess_data)
+```
+
+```{r}
+# turn categorical variables into factors
+for (c_name in colnames(chess_data)) {
+  chess_data[, c_name] <- as.factor(chess_data[, c_name])
+}
+
+head(chess_data)
+```
+
+```{r}
+# turn categorical data into dummy variables
+#chess_data <- fastDummies::dummy_cols(chess_data)
+#chess_data <- chess_data[-c(0:65)] # remove old data
+
+# turn categorical variables into factors
+for (c_name in colnames(chess_data)) {
+  chess_data[, c_name] <- as.factor(chess_data[, c_name])
+}
+
+chess_data["target"] <-  apply(M, 1, function(x) which(ACTION_NAMES == get_best_move(from_board_to_fen(x[0:64]))))
+
+head(chess_data)
+```
+
+```{r}
+split <- function(string) {
+  tokens <- str_split(string, "_")
+  return(as.integer(tokens[[1]][2]))
+}
+```
+
+```{r}
+# collapsing dummy data
+collapse_dummy <- function(data) {
+  res_df <- data.frame(matrix(vector(), nrow(data), 65, 
+                              dimnames=list(c(), col_names)),
+                              stringsAsFactors=F)
+  
+  for (c_name in col_names) {
+    col_starting_with <- startsWith(colnames(data), c_name)
+    tmp_df <- data[col_starting_with]
+    res_df[c_name] <- data.frame(names(tmp_df)[max.col(tmp_df)])
+    res_df[c_name] <- apply(res_df[c_name], 1, split)
+  }
+  
+  #res_df <- lapply(res_df, function(x) as.numeric(as.character(x)))
+  return(res_df)
+}
+```
+
+```{r}
+# function to transform board to fen string
+from_board_to_fen <- function(board) {
+  num_rows <- 8
+  fen <- ""
+  r <- 0
+  
+  while (r < num_rows){
+    c <- 0
+    while (c < num_rows) {
+      curr_index <- num_rows * (7-r) + c 
+      
+      if (as.integer(as.character(board[[curr_index + 1]])) == 0) {
+        blank_counter <- 0
+        
+        while (as.integer(as.character(board[[curr_index + 1]])) == 0) {
+          blank_counter <- blank_counter + 1
+          c <- c + 1
+          if (c >= num_rows) {
+            break
+          }
+          
+          curr_index <- num_rows * (7-r) + c
+        }
+        
+        fen <- paste(fen, as.character(blank_counter), sep="")
+      }
+      else {
+        code <- CODE_TO_PIECE[as.integer(as.character(board[[curr_index + 1]]))]
+        fen <- paste(fen, as.character(code), sep="")
+        c <- c + 1
+      }
+    }
+    
+    r <- r + 1
+    if (r < num_rows){
+      fen <- paste(fen, "/", sep="")
+    }
+  }
+  
+  player_num <- board[[65]]
+  player <- " w "
+  if (player_num == 1) {
+    player <- " b "  
+  }
+  
+  fen <- paste(fen, player, sep="")
+
+  fen <- paste(fen, "- - 0 1", sep="")
+  
+  return(fen)
+}
+```
+
+```{r}
+board_df <- chess_data[9050, ]
+
+head(board_df)
+
+```
+
+```{r}
+library("methods")
+
+# create bb model class
+model_class <- setRefClass("model_class", fields=list(task="character"), methods=list(
+  get_pred = function(model, newdata) {
+    n <- nrow(newdata)
+    i <- 1
+    y_hat <- matrix(0, nrow=n, ncol=length(ACTION_NAMES))
+    
+    while (i <= n) {
+      cf <- newdata[i,]
+      fen_board <- from_board_to_fen(cf)
+      best_move <- get_best_move(fen_board)
+      best_move_pos <- which(ACTION_NAMES == best_move)
+      
+      #y_hat[i] <- best_move
+      y_hat[i, best_move_pos] <- 1
+      i <- i + 1
+    }
+    y_hat <- data.frame(y_hat)
+    names(y_hat) <- ACTION_NAMES
+    return(y_hat)
+  }
+))
+```
+
+```{r}
+# define model
+bb_model <- model_class(task="classification")
+```
+
+```{r}
+# define predictor
+predictor <- Predictor$new(bb_model, data=chess_data, predict.function=bb_model$get_pred, y="target")
+predictor$task <- "classification"
+predictor$batch.size <- 1000
+```
+
+```{r}
+# def cf method
+cf_classif <- MOCClassif$new(predictor, n_generations = 10, fixed_features = c("player"), max_changed = 5)
+```
+
+```{r}
+# find counterfactuals
+cfactuals <- cf_classif$find_counterfactuals(
+  board_df, "e2d2"
+)
+```
+
+
+```{r}
+cfactuals$data
+for (cf in cfactuals$data) {
+  cf_fen <- from_board_to_fen(cf)
+  print(cf_fen)
+}
+```
+
+```{r}
+uci_quit(eng)
+```
+
+
+
+
+
+
+
