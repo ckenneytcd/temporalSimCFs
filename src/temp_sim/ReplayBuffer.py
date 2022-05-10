@@ -3,7 +3,7 @@ import numpy as np
 
 class ReplayBuffer():
 
-    def __init__(self, capacity=500):
+    def __init__(self, capacity=1000):
         self.capacity = capacity
         self.count = 0
         self.state_count = 0

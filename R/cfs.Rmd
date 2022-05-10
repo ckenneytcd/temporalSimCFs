@@ -48,7 +48,7 @@ eng <- uci_engine(engine_path)
 ```{r}
 # checks whether fen represents a valid board
 is_valid_fen <- function(fen){
-  if (str_count(fen, "K") != 0) {
+  if (str_count(fen, "K") != 1) {
     return(0)
   }
   if (str_count(fen, "k") != 1) {
@@ -60,6 +60,9 @@ is_valid_fen <- function(fen){
   if (str_count(fen, "p") > 8) {
     return(0)
   }
+  
+  print('Valid kings and pawn counts')
+  
   tokens <- str_split(fen, "/")[[1]]
   first_row <- tokens[1]
   last_row <- tokens[8]
@@ -76,6 +79,8 @@ is_valid_fen <- function(fen){
   if (str_count(last_row, "P") > 0) {
     return(0)
   }
+  
+  print('Valid pawn positions')
   
   fen_pos <- Chess$new(fen)
   if (length(fen_pos$moves()) == 0) {
@@ -104,68 +109,10 @@ get_best_move <- function(position_fen) {
   return(best_move)
 }
 ```
-
-```{r}
-# loading chess data
-chess_data <- read.csv(file=data_path)
-chess_data <- chess_data[,-1]
-knit_print.data.frame <- lemon_print
-col_names <- colnames(chess_data)
-```
-
-```{r}
-# turn categorical variables into factors
-for (c_name in colnames(chess_data)) {
-  chess_data[, c_name] <- as.factor(chess_data[, c_name])
-}
-
-head(chess_data)
-```
-
-```{r}
-# turn categorical data into dummy variables
-#chess_data <- fastDummies::dummy_cols(chess_data)
-#chess_data <- chess_data[-c(0:65)] # remove old data
-
-# turn categorical variables into factors
-for (c_name in colnames(chess_data)) {
-  chess_data[, c_name] <- as.factor(chess_data[, c_name])
-}
-
-chess_data["target"] <-  apply(M, 1, function(x) which(ACTION_NAMES == get_best_move(from_board_to_fen(x[0:64]))))
-
-head(chess_data)
-```
-
-```{r}
-split <- function(string) {
-  tokens <- str_split(string, "_")
-  return(as.integer(tokens[[1]][2]))
-}
-```
-
-```{r}
-# collapsing dummy data
-collapse_dummy <- function(data) {
-  res_df <- data.frame(matrix(vector(), nrow(data), 65, 
-                              dimnames=list(c(), col_names)),
-                              stringsAsFactors=F)
-  
-  for (c_name in col_names) {
-    col_starting_with <- startsWith(colnames(data), c_name)
-    tmp_df <- data[col_starting_with]
-    res_df[c_name] <- data.frame(names(tmp_df)[max.col(tmp_df)])
-    res_df[c_name] <- apply(res_df[c_name], 1, split)
-  }
-  
-  #res_df <- lapply(res_df, function(x) as.numeric(as.character(x)))
-  return(res_df)
-}
-```
-
 ```{r}
 # function to transform board to fen string
 from_board_to_fen <- function(board) {
+  print(board)
   num_rows <- 8
   fen <- ""
   r <- 0
@@ -214,6 +161,56 @@ from_board_to_fen <- function(board) {
   fen <- paste(fen, "- - 0 1", sep="")
   
   return(fen)
+}
+```
+
+
+```{r}
+# loading chess data
+chess_data <- read.csv(file=data_path)
+chess_data <- chess_data[0:10,-1]
+knit_print.data.frame <- lemon_print
+col_names <- colnames(chess_data)
+
+
+head(chess_data)
+```
+
+
+```{r}
+# turn categorical variables into factors
+# for (c_name in colnames(chess_data)) {
+#   chess_data[, c_name] <- as.factor(chess_data[, c_name])
+# }
+
+chess_data["target"] <- apply(chess_data, 1, function(x) which(ACTION_NAMES == x['best_move']))
+
+head(chess_data)
+```
+
+```{r}
+split <- function(string) {
+  tokens <- str_split(string, "_")
+  return(as.integer(tokens[[1]][2]))
+}
+```
+
+```{r}
+# collapsing dummy data
+collapse_dummy <- function(data) {
+  res_df <- data.frame(matrix(vector(), nrow(data), 65, 
+                              dimnames=list(c(), col_names)),
+                              stringsAsFactors=F)
+  
+  for (c_name in col_names) {
+    col_starting_with <- startsWith(colnames(data), c_name)
+    tmp_df <- data[col_starting_with]
+    res_df[c_name] <- data.frame(names(tmp_df)[max.col(tmp_df)])
+    res_df[c_name] <- apply(res_df[c_name], 1, split)
+  }
+  
+  #res_df <- lapply(res_df, function(x) as.numeric(as.character(x)))
+  return(res_df)
 }
 ```
 

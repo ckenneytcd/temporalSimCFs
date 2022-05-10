@@ -55,7 +55,7 @@ def main():
     face = FACE(task.dataset[SQUARE_NAMES + ['player']], bb_model=task.bb_model, target_action=target_action, immutable_keys=['player'])
     tsa = TSA(chess_env, task.bb_model, target_action=target_action)
 
-    methods = [tsa, face, dice, growing_spheres, TSA]
+    methods = [tsa, face, dice, growing_spheres]
     method_names = ['TSA', 'FACE', 'DICE', 'Growing Spheres']
 
     # generate counterfactual examples
@@ -87,7 +87,7 @@ def main():
         print('Counterfactuals:')
         for i in range(n_cfs):
             cf_board = cfs[i]
-            cf_fen = from_board_to_fen(cf_board.squeeze())
+            cf_fen = from_board_to_fen(cf_board)
             print(cf_fen)
 
     print('Finished!')

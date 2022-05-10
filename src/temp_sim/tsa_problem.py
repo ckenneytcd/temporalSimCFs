@@ -12,7 +12,7 @@ class TSAProblem(Problem):
 
     def __init__(self, fact, bb_model, target_pred, env_model):
         # TODO: not hardcoded parameters
-        super().__init__(n_var=65, n_obj=3, n_constr=1, xl=0, xu=12, type_var=np.int64)
+        super().__init__(n_var=65, n_obj=3, n_constr=3, xl=0, xu=12, type_var=np.int64)
         self.fact = fact
         self.bb_model = bb_model
         self.target_pred = target_pred
@@ -24,7 +24,7 @@ class TSAProblem(Problem):
         # Fill replay buffer and generate graph
         self.replay_buffer = self.fill_replay_buffer(self.fact)
         self.G = self.generate_graph()
-        # get all shortest paths between nodes
+        # get all shortest paths from between nodes
         self.paths = dict(nx.all_pairs_shortest_path(self.G))
 
     def _evaluate(self, x, out, *args, **kwargs):
@@ -34,7 +34,7 @@ class TSAProblem(Problem):
         validity = 1 - np.array([x == y for x, y in zip(target_list, pred_cf)], dtype=int)
 
         # check sparsity (Hamming loss = number of feature changes)
-        sparsity = np.sum(self.fact == x, axis=1)
+        sparsity = self.n_var - np.sum(self.fact == x, axis=1)
 
         # check shortest path
         shortest_path = self.get_shortest_paths_for_cf_set(x)
@@ -44,9 +44,13 @@ class TSAProblem(Problem):
         fact_player = np.full_like(cf_player, self.fact_player)
         player_constraint = np.abs(cf_player - fact_player)
 
+        # kings constraint
+        white_king_constraint = 1 != np.count_nonzero(x == 6, axis=1)
+        black_king_constraint = 1 != np.count_nonzero(x == 12, axis=1)
+
         # concatenate the objectives
         out["F"] = anp.column_stack([validity, sparsity, shortest_path])
-        out["G"] = anp.column_stack([player_constraint])
+        out["G"] = anp.column_stack([white_king_constraint, black_king_constraint, player_constraint])
 
     def fill_replay_buffer(self, fact):
         # Generate dataset around f from env model
@@ -95,7 +99,7 @@ class TSAProblem(Problem):
 
         try:
             # if cf_id is in the list of shortest paths for f_id
-            shortest_path = self.paths[f_id][cf_id]
+            shortest_path = self.paths[f_id][cf_id][0]
         except KeyError():
             shortest_path = np.inf
 

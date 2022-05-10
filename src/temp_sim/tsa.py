@@ -21,9 +21,9 @@ class TSA:
         problem = TSAProblem(fact, self.bb_model, self.target_action, self.env_model)
 
         # define algorithm
-        algorithm = NSGA2(pop_size=1000,
+        algorithm = NSGA2(pop_size=500,
                           sampling=get_sampling("int_random"),  #  TODO: allow for specification of data types
-                          crossover=get_crossover("int_sbx"),
+                          crossover=get_crossover("real_sbx"),
                           mutation=get_mutation("int_pm"),
                           eliminate_duplicates=True)
 
@@ -31,8 +31,8 @@ class TSA:
         print('Optimizing...')
         res = minimize(problem,
                        algorithm,
-                       ('n_gen', 20000),
+                       ('n_gen', 100),
                        seed=1,
-                       verbose=False)
+                       verbose=True)
 
-        return res
+        return res.X.tolist()
