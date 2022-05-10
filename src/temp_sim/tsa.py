@@ -1,26 +1,23 @@
 from pymoo.algorithms.moo.nsga2 import NSGA2
-
-from src.temp_sim.ReplayBuffer import ReplayBuffer
-import networkx as nx
-import numpy as np
 from pymoo.optimize import minimize
 
-class TSA():
+from src.temp_sim.tsa_problem import TSAProblem
 
 
+class TSA:
 
     def __init__(self, env_model, bb_model, target_action):
         self.env_model = env_model
         self.bb_model = bb_model
         self.target_action = target_action
 
-        # parameters
-        self.n_episodes = 100
-        self.n_steps = 5
+    def get_counterfactuals(self, fact):
+        # TODO: make sure each baseline also takes in one fact in the form of the dataframe row
+        # Fact is passed as a df, need to extract the values
+        fact = fact.values.squeeze()
 
-    def generate_counterfactuals(self, fact):
         # define problem
-        problem = TSAProblem(fact)
+        problem = TSAProblem(fact, self.bb_model, self.target_action, self.env_model,)
 
         # define algorithm
         algorithm = NSGA2(pop_size=100)

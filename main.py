@@ -3,12 +3,12 @@ from src.envs.chess.chess_task import ChessTask
 from src.envs.chess.chess_util import from_board_to_fen, ACTION_NAMES, COL_NAMES, SQUARE_NAMES
 from src.baselines.DICE import DICE
 from src.baselines.face import FACE
+from src.temp_sim.tsa import TSA
 import pandas as pd
 from src.baselines.growing_spheres import GrowingSpheres
 
 from src.baselines.relace import ReLACE
 from src.util import seed_everything
-from src.temp_sim.tsa import TSA
 
 
 def main():
@@ -53,10 +53,10 @@ def main():
                 outcome='best_move', mutable_features=mutable_features, range_dict=range_dict)
     growing_spheres = GrowingSpheres(task.bb_model, target_action)
     face = FACE(task.dataset[SQUARE_NAMES + ['player']], bb_model=task.bb_model, target_action=target_action, immutable_keys=['player'])
-    TSA = TSA(chess_env, task.bb_model, target_action=target_action)
+    tsa = TSA(chess_env, task.bb_model, target_action=target_action)
 
-    methods = [face, dice, growing_spheres, TSA]
-    method_names = ['FACE', 'DICE', 'Growing Spheres', 'TSA']
+    methods = [tsa, face, dice, growing_spheres, TSA]
+    method_names = ['TSA', 'FACE', 'DICE', 'Growing Spheres']
 
     # generate counterfactual examples
     for i, m in enumerate(methods):

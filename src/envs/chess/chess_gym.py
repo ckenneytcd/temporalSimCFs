@@ -22,9 +22,9 @@ class ChessGymEnv(gym.Env):
         self.action_space = gym.spaces.Discrete(len(ACTION_NAMES))
 
     def step(self, move):
-        move_uci = ACTION_NAMES[move]
+        ''' Plays the move, which is in UCI format'''
         try:
-            self.board.push(move_uci)
+            self.board.push(move)
         except ValueError():
             print('Move not found: {}'.format(move))
 
@@ -55,5 +55,5 @@ class ChessGymEnv(gym.Env):
         return self.state
 
     def sample_action(self):
-        possible_actions = self.board.legal_moves
+        possible_actions = list(self.board.legal_moves)
         return random.choice(possible_actions)

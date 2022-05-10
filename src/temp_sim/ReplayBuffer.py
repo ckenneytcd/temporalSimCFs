@@ -3,27 +3,27 @@ import numpy as np
 
 class ReplayBuffer():
 
-    def __init__(self, capacity=10000):
+    def __init__(self, capacity=50):
         self.capacity = capacity
         self.count = 0
         self.state_count = 0
-        self.edge_buffer = np.array((capacity, 2))
-        self.state_buffer = np.array((2*capacity, 65))  # TODO: remove hardcoding
+        self.edge_buffer = np.zeros((capacity, 2))
+        self.state_buffer = np.zeros((2*capacity, 65))  # TODO: remove hardcoding
 
     def add(self, state, next_state):
         # add states in the state buffer
-        if not (state in list(self.state_buffer)):
+        if np.sum(np.all(state == self.state_buffer, axis=1)) == 0:
             self.state_buffer[self.state_count] = state
             self.state_count += 1
 
-        if not (next_state in list(self.state_buffer)):
+        if (np.sum(np.all(next_state == self.state_buffer, axis=1)) == 0):
             self.state_buffer[self.state_count] = next_state
             self.state_count += 1
 
-        source_id = np.where(self.state_buffer == state)
-        dest_id = np.where(self.state_buffer == next_state)
+        source_id = self.get_id_of_state(state)
+        dest_id = self.get_id_of_state(next_state)
 
-        if not any((self.edge_buffer[:] == [state, next_state]).all(1)):
+        if not np.any(np.all(self.edge_buffer[:] == [source_id, dest_id], axis=1)):
             self.edge_buffer[self.count, :] = [source_id, dest_id]
             self.count += 1
 
@@ -40,7 +40,10 @@ class ReplayBuffer():
         return self.edge_buffer
 
     def get_id_of_state(self, state):
-        return np.where(self.state_buffer == state)
-
+        try:
+            id = np.where(np.all(state == self.state_buffer, axis=1))[0][0]
+            return id
+        except ValueError:
+            print("Id for state {} not found".format(state))
 
 

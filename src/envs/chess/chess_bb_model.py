@@ -50,11 +50,12 @@ class ChessBBModel:
 
     def get_output(self, cfs):
         ''' Gets the best move for a set of counterfactual instances'''
+        # TODO: make sure all algorithms pass cfs as a numpy nd array
         nrows = cfs.shape[0]
         y_hat = np.zeros((nrows, len(ACTION_NAMES)))
 
         for i in range(nrows):
-         cf = cfs.iloc[[i]]
+         cf = cfs[i]
 
          best_move = self.predict(cf)
          best_move_index = ACTION_NAMES.index(best_move)
