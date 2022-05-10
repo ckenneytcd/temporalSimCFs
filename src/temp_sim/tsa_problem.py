@@ -11,13 +11,14 @@ from src.temp_sim.ReplayBuffer import ReplayBuffer
 class TSAProblem(Problem):
 
     def __init__(self, fact, bb_model, target_pred, env_model):
-        super().__init__(n_var=64, n_obj=2, n_constr=1, xl=0, xu=12, type_var=np.int)
+        # TODO: not hardcoded parameters
+        super().__init__(n_var=65, n_obj=3, n_constr=1, xl=0, xu=12, type_var=np.int64)
         self.fact = fact
         self.bb_model = bb_model
         self.target_pred = target_pred
         self.env_model = env_model
 
-        self.n_steps = 5
+        self.n_steps = 10
         self.fact_player = self.fact[-1] # the last input is the player id (black/white)
 
         # Fill replay buffer and generate graph
@@ -28,12 +29,12 @@ class TSAProblem(Problem):
 
     def _evaluate(self, x, out, *args, **kwargs):
         # check validity
-        pred_cf = self.bb_model.get_output(x)
-        target_array = np.full_like(pred_cf, self.target_pred)
-        validity = np.sum(pred_cf == target_array, axis=1)
+        pred_cf = self.bb_model.get_output(x)  # comes as list
+        target_list = [self.target_pred] * len(pred_cf)
+        validity = 1 - np.array([x == y for x, y in zip(target_list, pred_cf)], dtype=int)
 
-        # check sparsity
-        # TODO
+        # check sparsity (Hamming loss = number of feature changes)
+        sparsity = np.sum(self.fact == x, axis=1)
 
         # check shortest path
         shortest_path = self.get_shortest_paths_for_cf_set(x)
@@ -44,7 +45,7 @@ class TSAProblem(Problem):
         player_constraint = np.abs(cf_player - fact_player)
 
         # concatenate the objectives
-        out["F"] = anp.column_stack([validity, shortest_path])
+        out["F"] = anp.column_stack([validity, sparsity, shortest_path])
         out["G"] = anp.column_stack([player_constraint])
 
     def fill_replay_buffer(self, fact):
@@ -62,7 +63,7 @@ class TSAProblem(Problem):
                 replay_buffer.add(curr_state, next_state)
                 curr_state = next_state
                 step += 1
-
+        print('Finished. Generated {} instances.'.format(replay_buffer.count))
         return replay_buffer
 
     def generate_graph(self):
@@ -80,13 +81,17 @@ class TSAProblem(Problem):
         if len(G.nodes) < 100:
             nx.draw(G, with_labels=True, font_weight='bold')
             plt.show()
-
+        print('Built graph with {} nodes and {} edges.'.format(len(G.nodes), len(G.edges)))
         return G
 
     def get_shortest_path(self, f, cf):
         # Get shortest path from f to cf
         f_id = self.replay_buffer.get_id_of_state(f)
         cf_id = self.replay_buffer.get_id_of_state(cf)
+
+        if f_id == -1 or cf_id == -1:
+            # if states don't exist in the graph - return large distance
+            return +100
 
         try:
             # if cf_id is in the list of shortest paths for f_id

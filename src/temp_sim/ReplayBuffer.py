@@ -3,7 +3,7 @@ import numpy as np
 
 class ReplayBuffer():
 
-    def __init__(self, capacity=50):
+    def __init__(self, capacity=500):
         self.capacity = capacity
         self.count = 0
         self.state_count = 0
@@ -43,7 +43,6 @@ class ReplayBuffer():
         try:
             id = np.where(np.all(state == self.state_buffer, axis=1))[0][0]
             return id
-        except ValueError:
-            print("Id for state {} not found".format(state))
-
+        except IndexError:
+            return -1
 

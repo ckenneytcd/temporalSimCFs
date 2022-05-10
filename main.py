@@ -10,7 +10,7 @@ from src.baselines.growing_spheres import GrowingSpheres
 from src.baselines.relace import ReLACE
 from src.util import seed_everything
 
-
+# noinspection PyFromFutureImport
 def main():
     seed_everything()
     # define paths
