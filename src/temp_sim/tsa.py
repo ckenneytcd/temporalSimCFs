@@ -7,10 +7,12 @@ from src.temp_sim.tsa_problem import TSAProblem
 
 class TSA:
 
-    def __init__(self, env_model, bb_model, target_action):
+    def __init__(self, env_model, bb_model, target_action, graph_path, buffer_path):
         self.env_model = env_model
         self.bb_model = bb_model
         self.target_action = target_action
+        self.graph_path = graph_path
+        self.buffer_path = buffer_path
 
     def get_counterfactuals(self, fact):
         # TODO: make sure each baseline also takes in one fact in the form of the dataframe row
@@ -18,21 +20,22 @@ class TSA:
         fact = fact.values.squeeze()
 
         # define problem
-        problem = TSAProblem(fact, self.bb_model, self.target_action, self.env_model)
+        problem = TSAProblem(fact, self.bb_model, self.target_action, self.env_model, self.graph_path, self.buffer_path)
 
         # define algorithm
-        algorithm = NSGA2(pop_size=500,
-                          sampling=get_sampling("int_random"),  #  TODO: allow for specification of data types
+        algorithm = NSGA2(pop_size=100,
+                          sampling=get_sampling("real_random"),
                           crossover=get_crossover("real_sbx"),
-                          mutation=get_mutation("int_pm"),
+                          mutation=get_mutation("real_pm"),
                           eliminate_duplicates=True)
 
         # optimize
         print('Optimizing...')
         res = minimize(problem,
                        algorithm,
-                       ('n_gen', 100),
+                       ('n_gen', 50),
                        seed=1,
                        verbose=True)
-
+        print(res.F)
+        print(res.G)
         return res.X.tolist()

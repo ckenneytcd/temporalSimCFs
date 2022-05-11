@@ -3,7 +3,7 @@ import numpy as np
 
 class ReplayBuffer():
 
-    def __init__(self, capacity=1000):
+    def __init__(self, capacity=10000):
         self.capacity = capacity
         self.count = 0
         self.state_count = 0
@@ -46,3 +46,22 @@ class ReplayBuffer():
         except IndexError:
             return -1
 
+    def load(self, path):
+        nodes_path = path.format('nodes')
+        edges_path = path.format('edges')
+
+        with open(nodes_path, 'rb') as f:
+            self.state_buffer = np.load(f)
+
+        with open(edges_path, 'rb') as f:
+            self.edge_buffer = np.load(f)
+
+    def save(self, path):
+        nodes_path = path.format('nodes')
+        edges_path = path.format('edges')
+
+        with open(nodes_path, 'wb') as f:
+            np.save(f, self.state_buffer)
+
+        with open(edges_path, 'wb') as f:
+            np.save(f, self.edge_buffer)
