@@ -2,7 +2,7 @@ import chess
 from chess.engine import SimpleEngine
 from sklearn.preprocessing import FunctionTransformer
 import numpy as np
-
+import pandas as pd
 from src.envs.chess.chess_util import from_board_to_fen, is_valid_fen, is_playable_fen, ACTION_NAMES
 
 
@@ -24,16 +24,15 @@ class ChessBBModel:
         board = chess.Board(fen)
 
         if is_valid_fen(fen) and is_playable_fen(fen):
-         try:
-             self.load_bb_model()
-             best_move = self.engine.play(board, chess.engine.Limit(time=0.01)).move.uci()
-             self.engine.quit()
-             return best_move
-         except chess.engine.EngineTerminatedError:
-             return ''
+            try:
+                self.load_bb_model()
+                best_move = self.engine.play(board, chess.engine.Limit(time=0.01)).move.uci()
+                self.engine.quit()
+                return best_move
+            except chess.engine.EngineTerminatedError:
+                return ''
         else:
-         return ''
-        return best_move
+            return ''
 
     def load_bb_model(self):
         """Loads chess engine"""
@@ -53,6 +52,9 @@ class ChessBBModel:
         # TODO: make sure all algorithms pass cfs as a numpy nd array
         nrows = cfs.shape[0]
         y_hat = []
+
+        if isinstance(cfs, pd.DataFrame):
+            cfs = cfs.values
 
         for i in range(nrows):
             cf = cfs[i]

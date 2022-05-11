@@ -3,6 +3,8 @@ import numpy as np
 import autograd.numpy as anp
 from pymoo.core.problem import Problem
 import matplotlib.pyplot as plt
+
+from src.envs.chess.chess_util import from_board_to_fen
 from src.temp_sim.replay_buffer import ReplayBuffer
 
 
@@ -26,10 +28,13 @@ class TSAProblem(Problem):
         self.replay_buffer = self.fill_replay_buffer(self.fact)
         self.G = self.generate_graph()
         # get all shortest paths from between nodes
+        print('Generating shortest paths...')
         self.paths = dict(nx.all_pairs_shortest_path(self.G))
 
-
     def _evaluate(self, x, out, *args, **kwargs):
+        # for cf in x:
+        #     print(from_board_to_fen(cf))
+        #     print('----------------------------------')
         # check validity
         pred_cf = self.bb_model.get_output(x)  # comes as list
         target_list = [self.target_pred] * len(pred_cf)
@@ -50,16 +55,21 @@ class TSAProblem(Problem):
         white_king_constraint = 1 != np.count_nonzero(x == 6, axis=1)
         black_king_constraint = 1 != np.count_nonzero(x == 12, axis=1)
 
+
         # feature changes constrain
-        feature_change_constraint = sparsity - self.max_feature_changes
+        # feature_change_constraint = sparsity > self.max_feature_changes
+        # feature_change_constraint = shortest_path > self.max_feature_changes
 
         # concatenate the objectives
-        out["F"] = anp.column_stack([validity, sparsity, shortest_path])
-        out["G"] = anp.column_stack([white_king_constraint, black_king_constraint, feature_change_constraint, player_constraint])
+        out["F"] = anp.column_stack([shortest_path])
+        out["G"] = anp.column_stack([validity, white_king_constraint, black_king_constraint, player_constraint])
+
+        # print(out["F"])
+        # print(out["G"])
 
     def fill_replay_buffer(self, fact):
-        # Generate dataset around f from env model
-        replay_buffer = ReplayBuffer()
+        # Generate dataset around fact from env_model
+        replay_buffer = ReplayBuffer(capacity=1000)
         try:
             replay_buffer.load(self.buffer_path)
             print('Loaded replay buffer from: {}'.format(self.buffer_path))
@@ -72,10 +82,12 @@ class TSAProblem(Problem):
                 curr_state = fact
                 while not done and (step <= self.n_steps) and not replay_buffer.is_full():
                     rand_action = self.env_model.sample_action()
+                    print('Rand_action: {}'.format(rand_action))
                     next_state, rew, done, _ = self.env_model.step(rand_action)
                     replay_buffer.add(curr_state, next_state)
                     curr_state = next_state
                     step += 1
+
             print('Finished. Generated {} instances.'.format(replay_buffer.count))
             replay_buffer.save(self.buffer_path)
             print('Saved buffer at: {}'.format(self.buffer_path))
@@ -84,9 +96,6 @@ class TSAProblem(Problem):
 
     def generate_graph(self):
         # Generate graph from dataset
-        node_list = self.replay_buffer.get_state_ids()
-        edge_list = self.replay_buffer.get_edges()
-
         G = nx.Graph()
 
         try:
@@ -95,17 +104,20 @@ class TSAProblem(Problem):
             print('Loaded graph from: {}'.format(self.graph_path))
         except FileNotFoundError:
             # add nodes and edges
+            node_list = self.replay_buffer.get_state_ids()
+            edge_list = self.replay_buffer.get_edges()
+
             G.add_nodes_from(node_list)
             G.add_edges_from(edge_list)
-
-            # plot graph if small enough
-            if len(G.nodes) < 100:
-                nx.draw(G, with_labels=True, font_weight='bold')
-                plt.show()
             print('Built graph with {} nodes and {} edges.'.format(len(G.nodes), len(G.edges)))
 
             nx.write_gpickle(G, self.graph_path)
             print('Saved graph at: {}'.format(self.graph_path))
+
+        # plot graph if small enough
+        if len(G.nodes) < 100:
+            nx.draw(G, with_labels=True, font_weight='bold')
+            plt.show()
 
         return G
 
@@ -115,13 +127,12 @@ class TSAProblem(Problem):
         cf_id = self.replay_buffer.get_id_of_state(cf)
 
         if f_id == -1 or cf_id == -1:
-            # if states don't exist in the graph - return large distance
+            
             return +100
-
         try:
             # if cf_id is in the list of shortest paths for f_id
-            shortest_path = self.paths[f_id][cf_id][0]
-        except KeyError():
+            shortest_path = len(self.paths[f_id][cf_id])
+        except KeyError:
             shortest_path = np.inf
 
         return shortest_path

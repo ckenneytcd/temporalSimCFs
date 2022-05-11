@@ -36,7 +36,7 @@ def main():
     print('Factual fen: {}'.format(from_board_to_fen(fact.values[0])))
 
     # define counterfactual action
-    target_action = 'c4c8'
+    target_action = 'c7c8'
 
     # define which are mutable features
     mutable_features = COL_NAMES
