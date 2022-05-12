@@ -23,17 +23,10 @@ def main():
     if dataset_name == 'chess':
         task = ChessTask(model_path, dataset_path)
 
-    print('------ DATASET SAMPLE ------')
-    print(task.dataset.head())
-
     # get factuals from the data to generate counterfactual examples
     factuals = task.load_factuals(json_file_path)
     fact = factuals.head(1)  # take the first factual for simplicity
     fact = fact[SQUARE_NAMES + ['player']]  # remove the label
-
-    print('Factual:')
-    task.print_instance(fact.values.squeeze())
-    print('Factual fen: {}'.format(from_board_to_fen(fact.values[0])))
 
     # define counterfactual action
     target_action = 'c7c8'

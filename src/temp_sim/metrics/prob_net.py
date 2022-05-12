@@ -13,9 +13,9 @@ class ProbNet(nn.Module):
         super(ProbNet, self).__init__()
 
         self.embedding = nn.Embedding(num_embeddings=13, embedding_dim=EMBEDDING_DIM, )
-        self.fc1 = nn.Linear(INPUT_SIZE * EMBEDDING_DIM, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.output = nn.Linear(64, 1)
+        self.fc1 = nn.Linear(INPUT_SIZE * EMBEDDING_DIM, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.output = nn.Linear(128, 1)
 
     def forward(self, x):
         x = self.embedding(x).view((BATCH_SIZE, -1))

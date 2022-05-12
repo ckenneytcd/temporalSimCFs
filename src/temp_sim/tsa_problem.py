@@ -1,13 +1,9 @@
-import networkx as nx
 import numpy as np
 import autograd.numpy as anp
 from pymoo.core.problem import Problem
-import matplotlib.pyplot as plt
 
 from src.temp_sim.metrics.graph_estimator import GraphEstimator
 from src.temp_sim.metrics.prob_estimator import ProbEstimator
-
-from src.temp_sim.metrics.replay_buffer import ReplayBuffer
 
 
 class TSAProblem(Problem):
