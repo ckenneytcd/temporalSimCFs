@@ -12,11 +12,11 @@ from src.util import seed_everything
 def main():
     seed_everything()
     # define paths
+    # TODO maybe make paths global variables
     dataset_name = 'chess'
     model_path = 'engines/{}/stockfish_14.1/stockfish_14.1.exe'.format(dataset_name)
     dataset_path = 'data/{}/dataset.csv'.format(dataset_name)
     json_file_path = 'data/{}/puzzles.json'.format(dataset_name)
-    graph_path = 'data/{}/graph.gpickle'.format(dataset_name)
     buffer_path = 'data/chess/buffer_{}.npy'
 
     # define task
@@ -53,7 +53,7 @@ def main():
                 outcome='best_move', mutable_features=mutable_features, range_dict=range_dict)
     growing_spheres = GrowingSpheres(task.bb_model, target_action)
     face = FACE(task.dataset[SQUARE_NAMES + ['player']], bb_model=task.bb_model, target_action=target_action, immutable_keys=['player'])
-    tsa = TSA(chess_env, task.bb_model, target_action=target_action, graph_path=graph_path, buffer_path=buffer_path)
+    tsa = TSA(chess_env, task.bb_model, target_action=target_action, buffer_path=buffer_path)
 
     methods = [tsa, face, growing_spheres]
     method_names = ['TSA', 'FACE', 'Growing Spheres']

@@ -10,11 +10,10 @@ from src.temp_sim.tsa_problem import TSAProblem
 
 class TSA:
 
-    def __init__(self, env_model, bb_model, target_action, graph_path, buffer_path):
+    def __init__(self, env_model, bb_model, target_action, buffer_path):
         self.env_model = env_model
         self.bb_model = bb_model
         self.target_action = target_action
-        self.graph_path = graph_path
         self.buffer_path = buffer_path
 
         # params
@@ -33,7 +32,6 @@ class TSA:
                              self.bb_model,
                              self.target_action,
                              self.env_model,
-                             self.graph_path,
                              self.buffer_path,
                              distance_mode='prob')
 

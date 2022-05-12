@@ -12,16 +12,18 @@ from src.temp_sim.metrics.replay_buffer import ReplayBuffer
 
 class TSAProblem(Problem):
 
-    def __init__(self, fact, bb_model, target_pred, env_model, graph_path, buffer_path, distance_mode='graph'):
+    def __init__(self, fact, bb_model, target_pred, env_model, buffer_path, distance_mode='graph'):
         # TODO: not hardcoded parameters
         super().__init__(n_var=65, n_obj=3, n_constr=4, xl=0, xu=12, type_var=np.int64)
         self.fact = fact
         self.bb_model = bb_model
         self.target_pred = target_pred
         self.env_model = env_model
-        self.graph_path = graph_path
         self.buffer_path = buffer_path
         self.distance_mode = distance_mode
+
+        self.graph_path = 'data/chess/graph.gpickle'
+        self.prob_model_path = 'data/chess/prob_model.pt'
 
         self.n_steps = 10
         self.fact_player = self.fact[-1]  # the last input is the player id (black/white)
@@ -68,7 +70,7 @@ class TSAProblem(Problem):
             return distance_estimator
 
         elif distance_mode == 'prob':
-            distance_estimator = ProbEstimator(self.env_model, self.fact)
+            distance_estimator = ProbEstimator(self.env_model, self.fact, self.prob_model_path)
             return distance_estimator
 
 
