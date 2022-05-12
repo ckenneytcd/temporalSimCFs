@@ -153,5 +153,9 @@ def is_playable_fen(fen):
     if board.is_game_over():
         return False
 
+    # flip current player to check if they are in check
+    board.turn = not board.turn
     check = board.is_check()
-    return True
+
+    # if opponent is in check, the position is not playable
+    return not check

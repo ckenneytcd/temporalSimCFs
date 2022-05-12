@@ -55,8 +55,8 @@ def main():
     face = FACE(task.dataset[SQUARE_NAMES + ['player']], bb_model=task.bb_model, target_action=target_action, immutable_keys=['player'])
     tsa = TSA(chess_env, task.bb_model, target_action=target_action, graph_path=graph_path, buffer_path=buffer_path)
 
-    methods = [tsa, face, dice, growing_spheres]
-    method_names = ['TSA', 'FACE', 'DICE', 'Growing Spheres']
+    methods = [tsa, face, growing_spheres]
+    method_names = ['TSA', 'FACE', 'Growing Spheres']
 
     # generate counterfactual examples
     for i, m in enumerate(methods):

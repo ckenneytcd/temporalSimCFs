@@ -22,14 +22,16 @@ class RelaceEnv(gym.Env):
         lows = np.zeros((2*NUM_FEATURES + 1, ))
         highs = np.ones((2*NUM_FEATURES + 1, ))
         highs[0: NUM_FEATURES] = 11  # can't add kings
+        # state consists of board features (64) + player feature (1) + change features (64)
         self.observation_space = gym.spaces.Box(low=lows, high=highs, shape=(2*NUM_FEATURES + 1, ))
+        # action is a tuple -- which feature to change and to which value
         self.action_space = gym.spaces.Tuple((gym.spaces.Discrete(NUM_FEATURES), gym.spaces.Discrete(13)))
 
     def set_bb_model(self, bb_model):
         self.bb_model = bb_model
 
     def reset(self):
-        random_start_state = self.fact # ignore the last feature about whose move it is
+        random_start_state = self.fact  # ignore the last feature about whose move it is
         self.set_x_state(random_start_state)
 
         self.prev_dist = 0
@@ -59,16 +61,17 @@ class RelaceEnv(gym.Env):
         if not self.is_valid_state():
             return -100, True
 
-        # check if change limit is reached
         new_pred = self.bb_model.predict(self.state[0:(NUM_FEATURES + 1)])
         print(new_pred)
 
+        # check if counterfactual is reached
         if new_pred == self.target_action:
             done = True
             reward = -self.lmbda * (self.hamming_loss(self.fact, self.state[0:NUM_FEATURES]) - self.prev_dist)
             self.prev_dist = self.hamming_loss(self.fact, self.state[0:NUM_FEATURES])
             return reward, done
         else:
+            # calculate the reward
             reward = 1 - self.lmbda * (self.hamming_loss(self.fact, self.state[0:NUM_FEATURES]) - self.prev_dist)
             self.prev_dist = self.hamming_loss(self.fact, self.state[0:64])
 

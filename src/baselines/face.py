@@ -83,12 +83,10 @@ class FACE:
             # generate shortest path from each instance to the fact
             distances, min_distance = shortest_path(graph, fact_ind)
 
-            # candidate distances from factual x
+            # candidate metrics from factual x
             candidate_min_distances = [
                 min_distance,
-                min_distance + 1,
-                min_distance + 2,
-                min_distance + 3,
+                min_distance + 1
             ]
 
             min_distance_indices = np.array([0])

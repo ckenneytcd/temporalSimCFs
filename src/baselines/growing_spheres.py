@@ -38,7 +38,7 @@ class GrowingSpheres:
             # Sample points on hyper sphere around instance
             candidate_cf = generate_neighborhood(fact.values, self.n_search_samples, self.step, count).values
 
-            # Compute distances to original instance
+            # Compute metrics to original instance
             dist = np.sum(candidate_cf == fact.values, axis=1) / fact.values.shape[1]
 
             # get y' for each counterfactual candidate

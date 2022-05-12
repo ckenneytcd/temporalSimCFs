@@ -2,6 +2,9 @@ from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.optimize import minimize
 from pymoo.factory import get_sampling, get_crossover, get_mutation, get_selection
 import numpy as np
+
+from src.envs.chess.chess_util import from_fen_to_board
+from src.temp_sim.metrics.replay_buffer import ReplayBuffer
 from src.temp_sim.tsa_problem import TSAProblem
 
 
@@ -15,8 +18,8 @@ class TSA:
         self.buffer_path = buffer_path
 
         # params
-        self.pop_size = 100
-        self.num_generations = 20
+        self.pop_size = 1000
+        self.num_generations = 50
 
     def get_counterfactuals(self, fact):
         # TODO: make sure each baseline also takes in one fact in the form of the dataframe row
@@ -26,10 +29,22 @@ class TSA:
         fact = fact.squeeze()
 
         # define problem
-        problem = TSAProblem(fact, self.bb_model, self.target_action, self.env_model, self.graph_path, self.buffer_path)
+        problem = TSAProblem(fact,
+                             self.bb_model,
+                             self.target_action,
+                             self.env_model,
+                             self.graph_path,
+                             self.buffer_path,
+                             distance_mode='prob')
 
-        # extending fact to pop size
-        fact_pop = problem.replay_buffer.state_buffer[0:self.pop_size]
+        # initializing the search
+        replay_buffer = ReplayBuffer()
+        replay_buffer.load(self.buffer_path)
+        random_indices = np.random.choice(replay_buffer.state_buffer.shape[0], size=self.pop_size, replace=False)
+        fact_pop = replay_buffer.state_buffer[random_indices, :]
+
+        if np.any(np.all(from_fen_to_board('7k/2R5/6K1/8/8/7B/8/8 w - - 0 1') == fact_pop, axis=1)):
+            print('Solution in initialization')
 
         # define algorithm
         algorithm = NSGA2(pop_size=self.pop_size,
