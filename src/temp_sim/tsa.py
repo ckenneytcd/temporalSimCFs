@@ -17,8 +17,8 @@ class TSA:
         self.buffer_path = buffer_path
 
         # params
-        self.pop_size = 100
-        self.num_generations = 20
+        self.pop_size = 1000
+        self.num_generations = 50
 
     def get_counterfactuals(self, fact):
         # TODO: make sure each baseline also takes in one fact in the form of the dataframe row

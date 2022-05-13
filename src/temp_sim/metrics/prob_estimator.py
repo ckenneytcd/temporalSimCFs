@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import copy
 from torch import nn, optim
 from sklearn.metrics import mean_squared_error
 from torch.utils.data import TensorDataset, DataLoader
@@ -15,7 +16,7 @@ class ProbEstimator:
         self.model_path = model_path
 
         self.n_steps = 10
-        self.capacity = 10000
+        self.capacity = 100000
         self.train_size = int(0.8*self.capacity)
         self.test_size = int(0.2*self.capacity)
 
@@ -37,8 +38,9 @@ class ProbEstimator:
         y = np.zeros((capacity, 1))
 
         count = 0
-        while count < capacity:
-            env.set_state(start_state)
+        # adding reachable states by executing a policy
+        while count < int(capacity/2):
+            env.set_state(copy.copy(start_state))
             dist = 0.0
             done = False
             curr_step = 0
@@ -60,6 +62,15 @@ class ProbEstimator:
                 dist += 1
                 state = new_state
 
+        # adding unreachable states by adding pieces
+        while count < capacity:
+            new_state = self.augment(start_state, change_prob=0.05)
+            x_input = np.concatenate((state, new_state), axis=0)
+            if not np.any(np.all(X == x_input, axis=1)):
+                X[count, :] = np.concatenate((state, new_state), axis=0)
+                y[count] = +100  # large distance
+                count += 1
+
         tensor_X = torch.Tensor(X)  # transform to torch tensor
         tensor_X = tensor_X.long()
         tensor_y = torch.Tensor(y)
@@ -80,7 +91,7 @@ class ProbEstimator:
 
         min_loss = 1000
 
-        for epoch in range(20):  # loop over the dataset multiple times
+        for epoch in range(50):  # loop over the dataset multiple times
             running_loss = 0.0
             for data in train_loader:
                 # get the inputs; data is a list of [inputs, labels]
@@ -147,3 +158,18 @@ class ProbEstimator:
         model.eval()
 
         return model
+
+    def augment(self, state, change_prob):
+        # add features instead of zeros
+        empty_squares = np.where(state == 0)[0]
+        num_empty_square = empty_squares.shape[0]
+
+        mutate = np.random.choice(2, size=(num_empty_square, ), p=[1-change_prob, change_prob])
+
+        random_feature = np.random.choice(12, size=(num_empty_square, ))
+
+        new_state = copy.copy(state)
+        new_state[empty_squares] = mutate * random_feature
+
+        return new_state
+

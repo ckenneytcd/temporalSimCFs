@@ -19,7 +19,7 @@ class ChessTask:
         self.num_piece_types = len(chess.PIECE_TYPES)
 
         self.bb_model = ChessBBModel(model_path)
-        self.dataset = self.create_dataset(1000)
+        self.dataset = self.create_dataset(100)
 
     def create_dataset(self, n_ep):
         ''' Creates a dataset of chess positions by having the engine play against itself for n_ep episodes '''

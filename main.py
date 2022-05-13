@@ -42,8 +42,8 @@ def main():
     range_dict = {f: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] for f in mutable_features}
 
     # define counterfactual methods
-    dice = DICE(task.bb_model, task.dataset, target_action=ACTION_NAMES.index(target_action), cont_features=[],
-                outcome='best_move', mutable_features=mutable_features, range_dict=range_dict)
+    # dice = DICE(task.bb_model, task.dataset, target_action=ACTION_NAMES.index(target_action), cont_features=[],
+    #             outcome='best_move', mutable_features=mutable_features, range_dict=range_dict)
     growing_spheres = GrowingSpheres(task.bb_model, target_action)
     face = FACE(task.dataset[SQUARE_NAMES + ['player']], bb_model=task.bb_model, target_action=target_action, immutable_keys=['player'])
     tsa = TSA(chess_env, task.bb_model, target_action=target_action, buffer_path=buffer_path)
