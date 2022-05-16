@@ -16,7 +16,7 @@ class ProbEstimator:
         self.model_path = model_path
 
         self.n_steps = 10
-        self.capacity = 100000
+        self.capacity = 10000
         self.train_size = int(0.8*self.capacity)
         self.test_size = int(0.2*self.capacity)
 
@@ -65,10 +65,10 @@ class ProbEstimator:
         # adding unreachable states by adding pieces
         while count < capacity:
             new_state = self.augment(start_state, change_prob=0.05)
-            x_input = np.concatenate((state, new_state), axis=0)
+            x_input = np.concatenate((start_state, new_state), axis=0)
             if not np.any(np.all(X == x_input, axis=1)):
-                X[count, :] = np.concatenate((state, new_state), axis=0)
-                y[count] = +100  # large distance
+                X[count, :] = x_input
+                y[count] = +1000  # large distance
                 count += 1
 
         tensor_X = torch.Tensor(X)  # transform to torch tensor
@@ -91,7 +91,7 @@ class ProbEstimator:
 
         min_loss = 1000
 
-        for epoch in range(50):  # loop over the dataset multiple times
+        for epoch in range(20):  # loop over the dataset multiple times
             running_loss = 0.0
             for data in train_loader:
                 # get the inputs; data is a list of [inputs, labels]

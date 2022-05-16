@@ -1,11 +1,11 @@
 import torch
-import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
 INPUT_SIZE = 65*2
 EMBEDDING_DIM = 10
 BATCH_SIZE = 1
+
 
 class ProbNet(nn.Module):
 
@@ -28,5 +28,4 @@ class ProbNet(nn.Module):
 
     def predict(self, x):
         output = self.forward(x.unsqueeze(0))
-
         return torch.round(output.squeeze())
