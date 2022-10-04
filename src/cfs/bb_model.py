@@ -18,17 +18,17 @@ class BBModel():
             model = DQN('MlpPolicy',
                         env,
                         verbose=1,
-                        exploration_fraction=0.5,
-                        policy_kwargs={'net_arch': [512, 512]},
+                        exploration_fraction=0.8,
+                        policy_kwargs={'net_arch': [256, 256]},
                         learning_rate=0.0001,
                         learning_starts=200,
                         batch_size=32,
-                        gamma=0.8,
+                        gamma=0.98,
                         train_freq=1,
                         gradient_steps=1,
                         target_update_interval=50,
                         )
-            model.learn(total_timesteps=100000)
+            model.learn(total_timesteps=200000)
             model.save(model_path)
         return model
 

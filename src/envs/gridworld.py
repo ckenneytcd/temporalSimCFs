@@ -12,7 +12,7 @@ class Gridworld(gym.Env):
         self.state_dim = self.world_dim ** 2 + 1
 
         self.chopping = 0
-        self.max_chopping = 10
+        self.max_chopping = 5
 
         self.step_pen = -1
         self.goal_rew = 10

@@ -49,7 +49,6 @@ class VariationalAutoencoder(nn.Module):
         self.to(device)
 
     def encode(self, x):
-        print(x)
         return self._mu_enc.float()(x.float()), self._log_var_enc.float()(x.float())
 
     def decode(self, z):
@@ -61,7 +60,6 @@ class VariationalAutoencoder(nn.Module):
         return mu + std * epsilon
 
     def forward(self, x):
-
         # split up the input in a mutable and immutable part
         x = x.clone()
 
@@ -87,7 +85,7 @@ class VariationalAutoencoder(nn.Module):
         xtrain: Union[pd.DataFrame, np.ndarray],
         kl_weight=0.3,
         lambda_reg=1e-6,
-        epochs=50,
+        epochs=100,
         lr=1e-4,
         batch_size=64,
     ):
@@ -104,7 +102,7 @@ class VariationalAutoencoder(nn.Module):
             weight_decay=lambda_reg,
         )
 
-        criterion = nn.BCELoss(reduction="mean")
+        criterion = nn.BCELoss(reduction="sum")
 
         # Train the VAE with the new prior
         ELBO = np.zeros((epochs, 1))

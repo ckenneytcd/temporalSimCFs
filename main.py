@@ -27,10 +27,12 @@ def main():
         print(method_names[i])
         cfs = m.generate_counterfactuals(fact, target)
 
-        print('Found {} counterfactuals'.format(cfs.shape[0]))
+        print('Found {} counterfactuals'.format(len(cfs)))
         print('Printing the best 10')
-        for i, cf in enumerate(cfs[:10, :]):
+        for i, (cf, f, g) in enumerate(cfs):
+            print('Objectives = {} Constraints = {}'.format(f, g))
             env.render_state(cf)
+
 
 if __name__ == '__main__':
     main()

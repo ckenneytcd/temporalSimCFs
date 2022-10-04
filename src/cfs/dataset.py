@@ -11,11 +11,14 @@ class Dataset:
 
         self._dataset = self.generate_dataset(env, bb_model)
 
-    def generate_dataset(self, env, model, n_ep=5000):
+    def generate_dataset(self, env, model, n_ep=50000):
         print('Generating dataset...')
         ds = []
 
         for i in range(n_ep):
+            if i % 1000 == 0:
+                print('Generated {} samples'.format(i))
+
             obs = env.reset()
 
             done = False
