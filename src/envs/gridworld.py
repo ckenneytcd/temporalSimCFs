@@ -1,3 +1,4 @@
+import copy
 import random
 
 import gym
@@ -30,7 +31,7 @@ class Gridworld(gym.Env):
         self.num_trees = 2
 
         self.ACTIONS = {'RIGHT': 0, 'DOWN': 1, 'LEFT': 2, 'UP': 3, 'CHOP': 4, 'SHOOT': 5}
-        self.OBJECTS = {'AGENT': 1, 'MONSTER': 2, 'TREE': 3}
+        self.OBJECTS = {'AGENT': 1, 'MONSTER': 2, 'TREE': 3, 'KILLED_MONSTER': -1}
 
     def step(self, action):
         if isinstance(action, str):
@@ -43,11 +44,16 @@ class Gridworld(gym.Env):
 
         return new_state.flatten(), rew, done, {}
 
-    def create_state(self, agent, monster, trees, chopping, chopped_trees=[]):
+    def create_state(self, agent, monster, trees, chopping, chopped_trees=[], killed_monster=False):
         state = [0.0] * self.state_dim
         state[-1] = chopping
         state[agent] = self.OBJECTS['AGENT']
-        state[monster] = self.OBJECTS['MONSTER']
+
+        if killed_monster:
+            state[monster] = self.OBJECTS['KILLED_MONSTER']
+        else:
+            state[monster] = self.OBJECTS['MONSTER']
+
         for t in trees:
             if t not in chopped_trees:
                 state[t] = self.OBJECTS['TREE']
@@ -106,7 +112,7 @@ class Gridworld(gym.Env):
             if (int(agent / self.world_dim) == int(monster / self.world_dim)) or (agent % self.world_dim == monster % self.world_dim):
                 free = self.check_if_path_free(agent, monster, trees)
                 if free:
-                    new_array = self.create_state(agent, monster, trees, self.chopping)
+                    new_array = self.create_state(agent, monster, trees, self.chopping, killed_monster=True)
                     return new_array, True, self.goal_rew
 
         new_state = self.create_state(agent, monster, trees, self.chopping, chopped_trees)
@@ -224,7 +230,10 @@ class Gridworld(gym.Env):
         return True
 
     def actionable(self, x, fact):
-        monster = np.where(fact == self.OBJECTS['MONSTER'])[0][0]
+        monster = list(np.where(fact == self.OBJECTS['MONSTER'])[0])
+
+        if len(monster) == 0:
+            return False
 
         return abs(x[monster] == self.OBJECTS['MONSTER'])
 
@@ -236,5 +245,19 @@ class Gridworld(gym.Env):
         state = self.create_state(agent, monster, trees, chopping=0)
 
         return state
+
+    def get_actions(self, state):
+        return np.arange(self.action_space.n)
+
+    def set_state(self, state):
+        self.state = copy.deepcopy(state)
+
+    def check_done(self, state):
+        killed_monster = list(np.where(state[0:self.world_dim * self.world_dim] == self.OBJECTS['KILLED_MONSTER'])[0])
+
+        if len(killed_monster):
+            return True
+
+        return False
 
 

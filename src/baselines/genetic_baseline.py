@@ -8,6 +8,7 @@ from pymoo.optimize import minimize
 from pymoo.problems.functional import FunctionalProblem
 
 from src.baselines.encoder import VariationalAutoencoder
+from src.objectives.baseline_objs import BaselineObjectives
 
 
 class GeneticBaseline:
@@ -24,27 +25,16 @@ class GeneticBaseline:
 
         self.encoded_ds = self.vae.encode(torch.tensor(self.dataset.values))[0]
 
+        self.baseline_objectives = BaselineObjectives(self.env, self.bb_model, self.vae, self.dataset, self.n_var)
+
+
     def generate_counterfactuals(self, fact, target):
         print('Generating counterfactuals...')
-        if self.proximity_type == 'mse':
-            objs = [
-                lambda x: np.mean(abs(x - fact)),  # proximity
-                lambda x: ((sum(fact != x) * 1.0) / self.n_var)  # sparsity
-            ]
-        elif self.proximity_type == 'vae':
-            objs = [
-                lambda x: self.proximity(x, fact),  # proximity
-                lambda x: self.sparsity(x, fact),  # sparsity
-                lambda x: self.data_manifold_closeness(x, self.encoded_ds)  # data manifold closeness
-            ]
 
         X = np.tile(fact, (1000, 1))
 
-        constr_ieq = [
-            lambda x: abs(self.bb_model.predict(x) - target),  # validity
-            lambda x: 1 - self.env.realistic(x),  # realistic
-            lambda x: 1 - self.env.actionable(x, fact)  # actionable
-        ]
+        objs = list(self.baseline_objectives.get_objectives(fact).values())
+        constr_ieq = list(self.baseline_objectives.get_constraints(fact, target).values())
 
         problem = FunctionalProblem(self.n_var,
                                     objs,
@@ -68,33 +58,22 @@ class GeneticBaseline:
         F = res.pop.get('F')
         G = res.pop.get('G')
 
-        cfs = []
+        cfs = {}
         for i, s in enumerate(solutions):
             f = F[i]
             g = G[i]
+
             if sum(g) == 0:
-                cfs.append((s, f, g))
+                if len(cfs['cf']):
+                    cfs['cf'].append(s)
+                    cfs['f'].append(f)
+                    cfs['g'].append(g)
+                else:
+                    cfs['cf'] = [s]
+                    cfs['f'] = [f]
+                    cfs['g'] = [g]
 
         return cfs
 
-    def proximity(self, x, fact):
-        x_tensor = torch.tensor(x).squeeze()
-        enc_x = self.vae.encode(x_tensor)[0]
 
-        fact_tensor = torch.tensor(fact).squeeze()
-        enc_fact = self.vae.encode(fact_tensor)[0]
-
-        diff = abs(torch.subtract(enc_x, enc_fact))
-
-        return sum(diff)
-
-    def sparsity(self, x, fact):
-        return ((sum(fact != x) * 1.0) / self.n_var)
-
-    def data_manifold_closeness(self, x, data):
-        x_tensor = torch.tensor(x).squeeze()
-        enc_x = self.vae.encode(x_tensor)[0]
-        diffs = [sum(abs(d - enc_x)) for d in data]
-
-        return min(diffs)
 
