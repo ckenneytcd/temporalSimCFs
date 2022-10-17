@@ -57,9 +57,6 @@ class MCTSState:
 
         final_rew = contr_rew + obj_rew
 
-        if contr_rew >= 0:
-            print('State = {} Total reward = {}'.format(self._state, final_rew))
-
         return final_rew
 
     def get_cf_reward(self, state):

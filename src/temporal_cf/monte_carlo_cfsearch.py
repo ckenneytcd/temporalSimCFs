@@ -26,25 +26,36 @@ class MCTSSearch:
 
         print('Running MCTS...')
         mcts_solver = mcts(iterationLimit=1000)
-        best_action = mcts_solver.search(initialState=mcts_init)
+        mcts_solver.search(initialState=mcts_init)
 
-        terminal = False
-        curr = mcts_solver.root
-        while not terminal:
-            children = curr.children
+        all_nodes = self.traverse(mcts_solver.root)
+        potential_cf = [(n, n.totalReward) for n in all_nodes if n.isTerminal]
 
-            if len(children):
-                    best_child = mcts_solver.getBestChild(curr, 0)
-            else:
-                return {'cf': [curr.state._state.squeeze()],
-                        'value': [curr.state.get_cf_reward(curr.state._state)],
-                        'terminal': [curr.state.isTerminal()]}
+        return_dict = {
+            'cf': [],
+            'value': [],
+            'terminal': []
+        }
 
-            curr = best_child
-            terminal = curr.state.isTerminal()
+        for cf, cf_value in potential_cf:
+            return_dict['cf'].append(cf)
+            return_dict['value'].append(cf_value)
+            return_dict['terminal'].append(cf.isTerminal)
 
-            if terminal:
-                cf = best_child.state._state.squeeze()
-                return {'cf': [cf],
-                        'value': [best_child.state.get_cf_reward(best_child.state._state)],
-                        'terminal': [terminal]}
+        return return_dict
+
+    def traverse(self, root):
+        ''' Returns all nodes in the tree '''
+        all_nodes = []
+
+        if root is None:
+            return None
+
+        if root.children is None or len(root.children) == 0:
+            return [root]
+
+        if root.children is not None and len(root.children):
+            for id, c in root.children.items():
+                all_nodes = all_nodes + self.traverse(c)
+
+        return all_nodes
