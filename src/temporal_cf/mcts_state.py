@@ -15,12 +15,12 @@ class MCTSState:
 
         self.obj = obj
 
-        self.lmbdas = {'proximity': 0.5,
-                       'sparsity': 0.2,
-                       'dmc': 0.3,
-                       'validity': 10,
-                       'realistic': 10,
-                       'actionable': 10}
+        self.lmbdas = {'proximity': -0.33,
+                       'sparsity': -0.33,
+                       'dmc': -0.33,
+                       'validity': -10,
+                       'realistic': -10,
+                       'actionable': -10}  # because MCTS maximizes value
 
     def getPossibleActions(self):
         return self.env.get_actions(self._state)
@@ -46,13 +46,32 @@ class MCTSState:
         objectives = self.obj.get_objectives(self.fact)
         contraints = self.obj.get_constraints(self.fact, self.target_action)
 
-        final_rew = 0.0
+        obj_rew = 0.0
+        contr_rew = 0.0
 
         for o_name, o_formula in objectives.items():
-            final_rew += self.lmbdas[o_name] * o_formula(self._state)
+            obj_rew += self.lmbdas[o_name] * o_formula(self._state)
 
         for c_name, c_formula in contraints.items():
-            final_rew += self.lmbdas[c_name] * c_formula(self._state)
+            contr_rew += self.lmbdas[c_name] * c_formula(self._state)
+
+        final_rew = contr_rew + obj_rew
+
+        if contr_rew >= 0:
+            print('State = {} Total reward = {}'.format(self._state, final_rew))
 
         return final_rew
 
+    def get_cf_reward(self, state):
+        objectives = self.obj.get_objectives(self.fact)
+        contraints = self.obj.get_constraints(self.fact, self.target_action)
+
+        final_rew = 0.0
+
+        for o_name, o_formula in objectives.items():
+            final_rew += self.lmbdas[o_name] * o_formula(state)
+
+        for c_name, c_formula in contraints.items():
+            final_rew += self.lmbdas[c_name] * c_formula(state)
+
+        return final_rew

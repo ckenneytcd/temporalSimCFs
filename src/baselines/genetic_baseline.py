@@ -13,12 +13,11 @@ from src.objectives.baseline_objs import BaselineObjectives
 
 class GeneticBaseline:
 
-    def __init__(self, env, bb_model, dataset, proximity='mse'):
+    def __init__(self, env, bb_model, dataset):
         self.env = env
         self.bb_model = bb_model
         self.dataset = dataset
         self.n_var = env.state_dim
-        self.proximity_type = proximity
 
         self.vae = VariationalAutoencoder(layers=[self.n_var, 128, 8])
         self.vae.fit(dataset)
@@ -64,7 +63,7 @@ class GeneticBaseline:
             g = G[i]
 
             if sum(g) == 0:
-                if len(cfs['cf']):
+                if len(cfs.items()):
                     cfs['cf'].append(s)
                     cfs['f'].append(f)
                     cfs['g'].append(g)

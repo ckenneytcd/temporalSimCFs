@@ -24,7 +24,8 @@ class MCTSSearch:
     def generate_counterfactuals(self, fact, target):
         mcts_init = MCTSState(self.env, self.bb_model, target, fact, fact, self.obj)
 
-        mcts_solver = mcts(timeLimit=1000)
+        print('Running MCTS...')
+        mcts_solver = mcts(iterationLimit=1000)
         best_action = mcts_solver.search(initialState=mcts_init)
 
         terminal = False
@@ -33,17 +34,17 @@ class MCTSSearch:
             children = curr.children
 
             if len(children):
-                best_child = mcts_solver.getBestChild(curr, 0)
+                    best_child = mcts_solver.getBestChild(curr, 0)
             else:
-                return {'cf': [curr.state._state],
-                        'value': [curr.totalReward],
+                return {'cf': [curr.state._state.squeeze()],
+                        'value': [curr.state.get_cf_reward(curr.state._state)],
                         'terminal': [curr.state.isTerminal()]}
 
             curr = best_child
             terminal = curr.state.isTerminal()
 
             if terminal:
-                cf = list(best_child.state._state)
+                cf = best_child.state._state.squeeze()
                 return {'cf': [cf],
-                        'value': [best_child.totalReward],
+                        'value': [best_child.state.get_cf_reward(best_child.state._state)],
                         'terminal': [terminal]}

@@ -17,8 +17,7 @@ def main():
     bb_model = BBModel(env, model_path)
     dataset = Dataset(env, bb_model)
 
-    baseline_genetic = GeneticBaseline(env, bb_model, dataset._dataset)
-    baseline_genetic_vae = GeneticBaseline(env, bb_model, dataset._dataset, proximity='vae')
+    baseline_genetic_vae = GeneticBaseline(env, bb_model, dataset._dataset)
     mcts_search = MCTSSearch(env, bb_model, dataset._dataset)
 
     methods = [mcts_search, baseline_genetic_vae]
@@ -28,7 +27,8 @@ def main():
     fact = env.generate_state_from_json(json_fact)
 
     for i, m in enumerate(methods):
-        print(method_names[i])
+        print('-------------------------------------------------------------')
+        print('Generating counterfactuals with: {}'.format(method_names[i]))
         cfs = m.generate_counterfactuals(fact, target)
 
         if len(cfs):
@@ -41,6 +41,8 @@ def main():
                     print('{} = {}'.format(k, v[i]))
         else:
             print('Found no counterfactuals')
+
+        print('-------------------------------------------------------------')
 
 if __name__ == '__main__':
     main()
