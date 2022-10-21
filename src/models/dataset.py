@@ -10,7 +10,7 @@ class Dataset:
 
         self._dataset = self.generate_dataset(env, bb_model)
 
-    def generate_dataset(self, env, model, n_ep=50000):
+    def generate_dataset(self, env, model, n_ep=10000):
         print('Generating dataset...')
         ds = []
 

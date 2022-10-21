@@ -1,7 +1,7 @@
 import torch
 from mcts import mcts
 
-from src.baselines.encoder import VariationalAutoencoder
+from src.baselines.autoenc import AutoEncoder
 from src.objectives.baseline_objs import BaselineObjectives
 from src.temporal_cf.mcts_state import MCTSState
 
@@ -14,8 +14,10 @@ class MCTSSearch:
         self.dataset = dataset
         self.n_var = env.state_dim
 
-        self.vae = VariationalAutoencoder(layers=[self.n_var, 128, 8])
-        self.vae.fit(dataset)
+        self.vae = AutoEncoder(layers=[self.n_var, 128, 8])
+        train_dataset = dataset.sample(frac=0.8, random_state=1)
+        test_dataset = dataset.drop(train_dataset.index)
+        self.vae.fit(train_dataset, test_dataset)
 
         self.enc_data = self.vae.encode(torch.tensor(self.dataset.values))[0]
 
@@ -25,11 +27,13 @@ class MCTSSearch:
         mcts_init = MCTSState(self.env, self.bb_model, target, fact, fact, self.obj)
 
         print('Running MCTS...')
-        mcts_solver = mcts(iterationLimit=1000)
+        mcts_solver = mcts(timeLimit=1000, maxLevel=20)
         mcts_solver.search(initialState=mcts_init)
 
         all_nodes = self.traverse(mcts_solver.root)
-        potential_cf = [(n, n.totalReward) for n in all_nodes if n.isTerminal]
+        print('Expanded {} nodes'.format(len(all_nodes)))
+
+        potential_cf = [(n.state, n.totalReward) for n in all_nodes if n.state.isTerminal()]
 
         return_dict = {
             'cf': [],
@@ -38,24 +42,22 @@ class MCTSSearch:
         }
 
         for cf, cf_value in potential_cf:
-            return_dict['cf'].append(cf)
-            return_dict['value'].append(cf_value)
-            return_dict['terminal'].append(cf.isTerminal)
+            if list(cf._state) not in return_dict['cf']:
+                return_dict['cf'].append(list(cf._state))
+                return_dict['value'].append(cf.getIndRews())
+                return_dict['terminal'].append(True)
 
         return return_dict
 
-    def traverse(self, root):
+    def traverse(self, root, nodes=None):
         ''' Returns all nodes in the tree '''
-        all_nodes = []
+        if nodes is None:
+            nodes = set()
 
-        if root is None:
-            return None
-
-        if root.children is None or len(root.children) == 0:
-            return [root]
+        nodes.add(root)
 
         if root.children is not None and len(root.children):
             for id, c in root.children.items():
-                all_nodes = all_nodes + self.traverse(c)
+                self.traverse(c, nodes)
 
-        return all_nodes
+        return nodes

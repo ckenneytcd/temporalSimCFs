@@ -20,6 +20,11 @@ def load_fact(fact_file):
     with open(fact_file, 'r') as f:
         content = json.load(f)
 
-    target = content['target']
+    facts = []
+    targets = []
+    for fact in content:
+        facts.append(fact)
+        target = fact['target']
+        targets.append(target)
 
-    return content, target
+    return facts, targets

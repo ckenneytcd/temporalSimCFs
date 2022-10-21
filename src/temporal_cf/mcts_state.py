@@ -1,7 +1,4 @@
 import copy
-from copy import deepcopy
-
-from src.objectives.baseline_objs import BaselineObjectives
 
 
 class MCTSState:
@@ -16,11 +13,11 @@ class MCTSState:
         self.obj = obj
 
         self.lmbdas = {'proximity': -0.33,
-                       'sparsity': -0.33,
+                       'sparsity': -0.5,
                        'dmc': -0.33,
-                       'validity': -10,
-                       'realistic': -10,
-                       'actionable': -10}  # because MCTS maximizes value
+                       'validity': 0,
+                       'realistic': -1,
+                       'actionable': -1}  # because MCTS maximizes value
 
     def getPossibleActions(self):
         return self.env.get_actions(self._state)
@@ -59,6 +56,20 @@ class MCTSState:
 
         return final_rew
 
+    def getIndRews(self):
+        objectives = self.obj.get_objectives(self.fact)
+        contraints = self.obj.get_constraints(self.fact, self.target_action)
+
+        rewards = {}
+
+        for o_name, o_formula in objectives.items():
+            rewards[o_name] = self.lmbdas[o_name] * o_formula(self._state)
+
+        for c_name, c_formula in contraints.items():
+            rewards[c_name] = self.lmbdas[c_name] * c_formula(self._state)
+
+        return rewards
+
     def get_cf_reward(self, state):
         objectives = self.obj.get_objectives(self.fact)
         contraints = self.obj.get_constraints(self.fact, self.target_action)
@@ -72,3 +83,4 @@ class MCTSState:
             final_rew += self.lmbdas[c_name] * c_formula(state)
 
         return final_rew
+

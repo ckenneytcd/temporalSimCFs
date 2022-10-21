@@ -5,7 +5,7 @@ import torch
 import pandas as pd
 
 
-class VariationalAutoencoder(nn.Module):
+class AutoEncoder(nn.Module):
     def __init__(self, layers: List):
         """
         Parameters
@@ -13,7 +13,7 @@ class VariationalAutoencoder(nn.Module):
         layers:
             List of layer sizes.
         """
-        super(VariationalAutoencoder, self).__init__()
+        super(AutoEncoder, self).__init__()
 
         if len(layers) < 2:
             raise ValueError(
@@ -23,70 +23,58 @@ class VariationalAutoencoder(nn.Module):
         self._input_dim = layers[0]
         latent_dim = layers[-1]
 
-        # The VAE components
+        # Autoencoder components
         lst_encoder = []
         for i in range(1, len(layers) - 1):
             lst_encoder.append(nn.Linear(layers[i - 1], layers[i]))
             lst_encoder.append(nn.ReLU())
-        encoder = nn.Sequential(*lst_encoder)
 
-        self._mu_enc = nn.Sequential(encoder, nn.Linear(layers[-2], latent_dim))
-        self._log_var_enc = nn.Sequential(encoder, nn.Linear(layers[-2], latent_dim))
+        self.encoder = nn.Sequential(*lst_encoder)
+        self.encoder = nn.Sequential(self.encoder, nn.Linear(layers[-2], latent_dim))
+
 
         lst_decoder = []
         for i in range(len(layers) - 2, 0, -1):
             lst_decoder.append(nn.Linear(layers[i + 1], layers[i]))
             lst_decoder.append((nn.ReLU()))
-        decoder = nn.Sequential(*lst_decoder)
+        self.decoder = nn.Sequential(*lst_decoder)
 
-        self.mu_dec = nn.Sequential(
-            decoder,
-            nn.Linear(layers[1], self._input_dim),
-            nn.Sigmoid(),
+        self.decoder = nn.Sequential(
+            self.decoder,
+            nn.Linear(layers[1], self._input_dim)
         )
 
         device = "cuda" if torch.cuda.is_available() else "cpu"
         self.to(device)
 
     def encode(self, x):
-        return self._mu_enc.float()(x.float()), self._log_var_enc.float()(x.float())
+        return self.encoder.float()(x.float())
 
     def decode(self, z):
-        return self.mu_dec(z)
-
-    def __reparametrization_trick(self, mu, log_var):
-        std = torch.exp(0.5 * log_var)
-        epsilon = torch.randn_like(std)  # the Gaussian random noise
-        return mu + std * epsilon
+        return self.decoder.float()(z.float())
 
     def forward(self, x):
         # split up the input in a mutable and immutable part
         x = x.clone()
 
         # the mutable part gets encoded
-        mu_z, log_var_z = self.encode(x)
-        z = self.__reparametrization_trick(mu_z, log_var_z)
+        z = self.encode(x)
         recon = self.decode(z)
 
         # add the immutable features to the reconstruction
         x = recon
 
-        return x, mu_z, log_var_z
+        return x
 
     def predict(self, data):
         return self.forward(data)
 
-    def kld(self, mu, logvar):
-        KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-        return KLD
-
     def fit(
         self,
         xtrain: Union[pd.DataFrame, np.ndarray],
-        kl_weight=0.3,
-        lambda_reg=1e-6,
-        epochs=100,
-        lr=1e-4,
+        xtest: Union[pd.DataFrame, np.ndarray],
+        epochs=10,
+        lr=1e-3,
         batch_size=64,
     ):
         if isinstance(xtrain, pd.DataFrame):
@@ -98,19 +86,18 @@ class VariationalAutoencoder(nn.Module):
 
         optimizer = torch.optim.Adam(
             self.parameters(),
-            lr=lr,
-            weight_decay=lambda_reg,
+            lr=lr
         )
 
-        criterion = nn.BCELoss(reduction="sum")
+        self.train()
+
+        self.criterion = nn.MSELoss()
 
         # Train the VAE with the new prior
         ELBO = np.zeros((epochs, 1))
         print("Start training of Variational Autoencoder...")
+
         for epoch in range(epochs):
-
-            beta = epoch * kl_weight / epochs
-
             # Initialize the losses
             train_loss = 0
             train_loss_num = 0
@@ -121,11 +108,9 @@ class VariationalAutoencoder(nn.Module):
                 data = data.float()
 
                 # forward pass
-                reconstruction, mu, log_var = self(data)
+                reconstruction = self(data)
 
-                recon_loss = criterion(reconstruction, data)
-                kld_loss = self.kld(mu, log_var)
-                loss = recon_loss + beta * kld_loss
+                loss = self.criterion(reconstruction, data)
 
                 # Update the parameters
                 optimizer.zero_grad()
@@ -139,16 +124,45 @@ class VariationalAutoencoder(nn.Module):
                 train_loss_num += 1
 
             ELBO[epoch] = train_loss / train_loss_num
-            if epoch % 10 == 0:
-                print(
-                    "[Epoch: {}/{}] [objective: {:.3f}]".format(
-                        epoch, epochs, ELBO[epoch, 0]
-                    )
+            print(
+                "[Epoch: {}/{}] [Train MSE: {:.2f}]".format(
+                    epoch, epochs, ELBO[epoch, 0]
                 )
+            )
 
-            # ELBO_train = ELBO[epoch, 0].round(2)
-            # print("[ELBO train: " + str(ELBO_train) + "]")
+            self.evaluate(xtest, epoch, epochs)
 
         print("... finished training of Variational Autoencoder.")
 
-        # self.eval()
+    def evaluate(self, test_data, epoch, epochs, batch_size=64):
+        self.eval()
+
+        if isinstance(test_data, pd.DataFrame):
+            test_data = test_data.values
+
+        test_loader = torch.utils.data.DataLoader(
+            test_data, batch_size=batch_size, shuffle=True
+        )
+
+        test_loss = 0.0
+        i_batches = 0.0
+        for data in test_loader:
+            data = data.view(data.shape[0], -1)
+            data = data.float()
+
+            # forward pass
+            reconstruction = self(data)
+
+            loss = self.criterion(reconstruction, data)
+
+            # Collect the ways
+            test_loss += loss.item()
+            i_batches += 1
+
+        print(
+            "[Epoch: {}/{}] [Test MSE: {:.2f}]".format(
+                epoch, epochs, test_loss/i_batches
+            )
+        )
+
+        self.train()

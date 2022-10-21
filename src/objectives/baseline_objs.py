@@ -1,12 +1,14 @@
+from math import sqrt
+
 import torch
 
 
 class BaselineObjectives:
 
-    def __init__(self, env, bb_model, vae, enc_dataset, n_var):
+    def __init__(self, env, bb_model, enc, enc_dataset, n_var):
         self.env = env
         self.bb_model = bb_model
-        self.vae = vae
+        self.enc = enc
         self.n_var = n_var
         self.enc_dataset = enc_dataset
 
@@ -25,22 +27,24 @@ class BaselineObjectives:
         }
 
     def proximity(self, x, fact):
-        x_tensor = torch.tensor(x).squeeze()
-        enc_x = self.vae.encode(x_tensor)[0]
+            x_tensor = torch.tensor(x).squeeze()
+            enc_x = self.enc.encode(x_tensor)
 
-        fact_tensor = torch.tensor(fact).squeeze()
-        enc_fact = self.vae.encode(fact_tensor)[0]
+            fact_tensor = torch.tensor(fact).squeeze()
+            enc_fact = self.enc.encode(fact_tensor)
 
-        diff = abs(torch.subtract(enc_x, enc_fact))
+            diff = abs(torch.subtract(enc_x, enc_fact))
 
-        return sum(diff).item()
+            return sum(diff).item()
 
     def sparsity(self, x, fact):
-        return ((sum(fact != x) * 1.0) / self.n_var).item()
+        return (sum(fact[:25] != x[:25]) * 1.0).item()
 
     def data_manifold_closeness(self, x, data):
         x_tensor = torch.tensor(x).squeeze()
-        enc_x = self.vae.encode(x_tensor)[0]
-        diffs = [sum(abs(d - enc_x)) for d in data]
+        enc_x = self.enc.encode(x_tensor)
+        recon = self.enc.decode(enc_x)
 
-        return min(diffs).item()
+        diff = sqrt(sum((recon - x_tensor)**2))
+
+        return diff

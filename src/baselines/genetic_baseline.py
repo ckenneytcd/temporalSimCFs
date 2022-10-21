@@ -7,7 +7,7 @@ from pymoo.operators.repair.rounding import RoundingRepair
 from pymoo.optimize import minimize
 from pymoo.problems.functional import FunctionalProblem
 
-from src.baselines.encoder import VariationalAutoencoder
+from src.baselines.autoenc import AutoEncoder
 from src.objectives.baseline_objs import BaselineObjectives
 
 
@@ -19,12 +19,14 @@ class GeneticBaseline:
         self.dataset = dataset
         self.n_var = env.state_dim
 
-        self.vae = VariationalAutoencoder(layers=[self.n_var, 128, 8])
-        self.vae.fit(dataset)
+        self.enc = AutoEncoder(layers=[self.n_var, 128, 8])
+        train_dataset = dataset.sample(frac=0.8, random_state=1)
+        test_dataset = dataset.drop(train_dataset.index)
+        self.enc.fit(train_dataset, test_dataset)
 
-        self.encoded_ds = self.vae.encode(torch.tensor(self.dataset.values))[0]
+        self.encoded_ds = self.enc.encode(torch.tensor(self.dataset.values))[0]
 
-        self.baseline_objectives = BaselineObjectives(self.env, self.bb_model, self.vae, self.dataset, self.n_var)
+        self.baseline_objectives = BaselineObjectives(self.env, self.bb_model, self.enc, self.dataset, self.n_var)
 
 
     def generate_counterfactuals(self, fact, target):
