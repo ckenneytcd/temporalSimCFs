@@ -28,7 +28,7 @@ class BBModel():
                         gradient_steps=1,
                         target_update_interval=50,
                         )
-            model.learn(total_timesteps=200000)
+            model.learn(total_timesteps=500000)
             model.save(model_path)
         return model
 

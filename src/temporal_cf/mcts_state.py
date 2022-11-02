@@ -13,7 +13,7 @@ class MCTSState:
         self.obj = obj
 
         self.lmbdas = {'proximity': -0.33,
-                       'sparsity': -0.5,
+                       'sparsity': -0.33,
                        'dmc': -0.33,
                        'validity': 0,
                        'realistic': -1,
@@ -23,15 +23,26 @@ class MCTSState:
         return self.env.get_actions(self._state)
 
     def takeAction(self, action):
-        new_state = copy.copy(self)
+        nns = []
+        for i in range(2**5):
+            new_state = copy.copy(self)
 
-        self.env.reset()
-        self.env.set_state(self._state)
-        obs, rew, done, _ = self.env.step(action)
+            self.env.reset()
+            self.env.set_state(self._state)
+            obs, rew, done, _ = self.env.step(action)
 
-        new_state._state = obs
+            new_state._state = copy.copy(obs)
 
-        return new_state
+            found = False
+            for nn in nns:
+                if self.env.equal_states(obs, nn._state):
+                    found = True
+                    break
+
+            if not found:
+                nns.append(new_state)
+
+        return nns
 
     def isTerminal(self):
         best_action = self.model.predict(self._state)

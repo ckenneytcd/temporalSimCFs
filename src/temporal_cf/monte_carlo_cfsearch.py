@@ -27,7 +27,7 @@ class MCTSSearch:
         mcts_init = MCTSState(self.env, self.bb_model, target, fact, fact, self.obj)
 
         print('Running MCTS...')
-        mcts_solver = mcts(timeLimit=1000, maxLevel=20)
+        mcts_solver = mcts(iterationLimit=200000, maxLevel=10)
         mcts_solver.search(initialState=mcts_init)
 
         all_nodes = self.traverse(mcts_solver.root)
@@ -37,6 +37,7 @@ class MCTSSearch:
 
         return_dict = {
             'cf': [],
+            'objectives': [],
             'value': [],
             'terminal': []
         }
@@ -44,7 +45,8 @@ class MCTSSearch:
         for cf, cf_value in potential_cf:
             if list(cf._state) not in return_dict['cf']:
                 return_dict['cf'].append(list(cf._state))
-                return_dict['value'].append(cf.getIndRews())
+                return_dict['objectives'].append(cf.getIndRews())
+                return_dict['value'].append(cf.getReward())
                 return_dict['terminal'].append(True)
 
         return return_dict

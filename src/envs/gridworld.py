@@ -32,8 +32,10 @@ class Gridworld(gym.Env):
 
         self.ACTIONS = {'RIGHT': 0, 'DOWN': 1, 'LEFT': 2, 'UP': 3, 'CHOP': 4, 'SHOOT': 5}
         self.OBJECTS = {'AGENT': 1, 'MONSTER': 2, 'TREE': 3, 'KILLED_MONSTER': -1}
-        self.TREE_TYPES = {3: 3, 4: 5, 5: 10}
+
+        self.TREE_TYPES = {3: 1, 4: 3, 5: 5}
         self.FERTILITY = {2: 0.1, 7: 0.5, 12: 0.9, 17: 0.5, 22: 0.1}
+        self.TREE_POS_TYPES = {2: 3, 7: 4, 12: 5, 17: 4, 22: 3}
         self.TREE_POS = [2, 7, 12, 17, 22]
 
     def step(self, action):
@@ -143,7 +145,7 @@ class Gridworld(gym.Env):
             p = self.FERTILITY[i]
             regrow_i = random.choices([0, 1], weights=[1-p, p])[0]
             if regrow_i == 1:
-                tree_type = random.choice(list(self.TREE_TYPES.keys()))
+                tree_type = self.TREE_POS_TYPES[i]
                 new_trees.append({i: tree_type})
 
         return new_trees
@@ -206,7 +208,7 @@ class Gridworld(gym.Env):
         tree_pos = tree_wall[tree_pos]
         trees = []
         for t in tree_pos:
-            tree_type = random.choices(list(self.TREE_TYPES.keys()))[0]
+            tree_type = self.TREE_POS_TYPES[t]
             trees.append({t: tree_type})
 
         self.chopping = 0
@@ -313,5 +315,8 @@ class Gridworld(gym.Env):
             return True
 
         return False
+
+    def equal_states(self, s1, s2):
+        return sum(s1 != s2) == 0
 
 
