@@ -1,5 +1,6 @@
 import torch
 from mcts import mcts
+import numpy as np
 
 from src.baselines.autoenc import AutoEncoder
 from src.objectives.baseline_objs import BaselineObjectives
@@ -27,7 +28,7 @@ class MCTSSearch:
         mcts_init = MCTSState(self.env, self.bb_model, target, fact, fact, self.obj)
 
         print('Running MCTS...')
-        mcts_solver = mcts(iterationLimit=200000, maxLevel=10)
+        mcts_solver = mcts(iterationLimit=50000, maxLevel=10)
         mcts_solver.search(initialState=mcts_init)
 
         all_nodes = self.traverse(mcts_solver.root)
@@ -49,7 +50,16 @@ class MCTSSearch:
                 return_dict['value'].append(cf.getReward())
                 return_dict['terminal'].append(True)
 
-        return return_dict
+        # return only the best one
+        best_cf_ind = np.argmax(np.array(list(return_dict['value'])))
+        best_cf = {
+            'cf': [return_dict['cf'][best_cf_ind]],
+            'objectives': [return_dict['objectives'][best_cf_ind]],
+            'value': [return_dict['value'][best_cf_ind]],
+            'terminal': [return_dict['terminal'][best_cf_ind]]
+        }
+
+        return best_cf
 
     def traverse(self, root, nodes=None):
         ''' Returns all nodes in the tree '''
