@@ -12,6 +12,41 @@ class BaselineObjectives:
         self.n_var = n_var
         self.enc_dataset = enc_dataset
 
+        self.lmbdas = {'proximity': -0.33,
+                       'sparsity': -0.33,
+                       'dmc': -0.33,
+                       'validity': 0,
+                       'realistic': -1,
+                       'actionable': -1}  # because BO_MCTS maximizes value
+
+    def get_ind_rews(self, fact, cf, target_action, actions, cummulative_reward):
+        objectives = self.get_objectives(fact)
+        contraints = self.get_constraints(fact, target_action)
+
+        rewards = {}
+
+        for o_name, o_formula in objectives.items():
+            rewards[o_name] = self.lmbdas[o_name] * o_formula(cf)
+
+        for c_name, c_formula in contraints.items():
+            rewards[c_name] = self.lmbdas[c_name] * c_formula(cf)
+
+        return rewards
+
+    def get_reward(self, fact, cf, target_action, actions=None, cummulative_reward=0):
+        objectives = self.get_objectives(fact)
+        contraints = self.get_constraints(fact, target_action)
+
+        final_rew = 0.0
+
+        for o_name, o_formula in objectives.items():
+            final_rew += self.lmbdas[o_name] * o_formula(cf)
+
+        for c_name, c_formula in contraints.items():
+            final_rew += self.lmbdas[c_name] * c_formula(cf)
+
+        return final_rew
+
     def get_objectives(self, fact):
         return {
             'proximity': lambda x: self.proximity(x, fact),

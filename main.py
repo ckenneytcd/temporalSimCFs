@@ -1,54 +1,59 @@
-from src.baselines.genetic_baseline import GeneticBaseline
+import chess
+import torch
+
+from src.envs.chessenv import ChessEnv
+from src.optimization.autoenc import AutoEncoder
+from src.optimization.genetic_baseline import GeneticBaseline
 from src.models.bb_model import BBModel
 from src.models.dataset import Dataset
 from src.envs.gridworld import Gridworld
-from src.temporal_cf.monte_carlo_cfsearch import MCTSSearch
-from src.utils.utils import seed_everything, load_fact
+from src.objectives.baseline_objs import BaselineObjectives
+from src.objectives.rl_objs import RLObjs
+from src.tasks.task import Task
+from src.optimization.monte_carlo_cfsearch import MCTSSearch
+from src.utils.utils import seed_everything
 
 
 def main():
     seed_everything(seed=1)
 
     task_name = 'gridworld'
-    env = Gridworld()
+    if task_name == 'gridworld':
+        env = Gridworld()
+    elif task_name == 'chess':
+        engine_path = 'trained_models/stockfish_15.exe'
+        engine = chess.engine.SimpleEngine.popen_uci(engine_path)
+        env = ChessEnv(engine)
+
+    # define paths
     model_path = 'trained_models/{}'.format(task_name)
     fact_file = 'fact/{}.json'.format(task_name)
 
+    # define models
     bb_model = BBModel(env, model_path)
     dataset = Dataset(env, bb_model)
+    train_dataset, test_dataset = dataset.split_dataset(frac=0.8)
+    vae = AutoEncoder(layers=[env.state_dim, 128, 8])
+    vae.fit(train_dataset, test_dataset)
+    enc_data = vae.encode(torch.tensor(dataset._dataset.values))[0]
 
-    baseline_genetic_vae = GeneticBaseline(env, bb_model, dataset._dataset)
-    mcts_search = MCTSSearch(env, bb_model, dataset._dataset)
+    # define objectives
+    baseline_obj = BaselineObjectives(env, bb_model, vae, enc_data, env.state_dim)
+    rl_obj = RLObjs(env, bb_model, max_actions=10)
 
-    methods = [mcts_search]
-    method_names = ['MCTS', 'Genetic baseline + VAE']
+    # define methods
+    BO_GEN = GeneticBaseline(env, bb_model, dataset._dataset, baseline_obj)
+    BO_MCTS = MCTSSearch(env, bb_model, dataset._dataset, baseline_obj)
+    RL_MCTS = MCTSSearch(env, bb_model, dataset._dataset, rl_obj)
 
-    json_facts, targets = load_fact(fact_file)
+    # method names
+    methods = [RL_MCTS]
+    method_names = ['RL_MCTS']
 
-    for i in range(len(json_facts)):
-        json_fact, target = json_facts[i], targets[i]
-        fact = env.generate_state_from_json(json_fact)
-
-        print('FACT')
-        env.render_state(fact)
-
-        for i, m in enumerate(methods):
-            print('-------------------------------------------------------------')
-            print('Generating counterfactuals with: {}'.format(method_names[i]))
-            cfs = m.generate_counterfactuals(fact, target)
-
-            if len(cfs):
-                n_cfs = len(cfs['cf'])
-                print('Found {} counterfactuals'.format(n_cfs))
-
-                for i in range(n_cfs):
-                    env.render_state(cfs['cf'][i])
-                    for k, v in cfs.items():
-                        print('{} = {}'.format(k, v[i]))
-            else:
-                print('Found no counterfactuals')
-
-            print('-------------------------------------------------------------')
+    for i, m in enumerate(methods):
+        eval_path = 'eval/{}/{}/rl_obj_results'.format(task_name, method_names[i])
+        task = Task(task_name, env, bb_model, dataset, m, method_names[i], rl_obj, eval_path)
+        task.run_experiment()
 
 if __name__ == '__main__':
     main()

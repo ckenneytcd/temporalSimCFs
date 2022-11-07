@@ -10,13 +10,11 @@ class Dataset:
 
         self._dataset = self.generate_dataset(env, bb_model)
 
-    def generate_dataset(self, env, model, n_ep=1000):
+    def generate_dataset(self, env, model, n_ep=10000):
         print('Generating dataset...')
         ds = []
 
         for i in range(n_ep):
-            if i % 1000 == 0:
-                print('Generated {} samples'.format(i))
 
             obs = env.reset()
 
@@ -36,3 +34,9 @@ class Dataset:
 
         print('Generated {} samples!'.format(len(df)))
         return df
+
+    def split_dataset(self, frac=0.8):
+        train_dataset = self._dataset.sample(frac=0.8, random_state=1)
+        test_dataset = self._dataset.drop(train_dataset.index)
+
+        return train_dataset, test_dataset

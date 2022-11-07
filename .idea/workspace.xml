@@ -20,11 +20,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4dc09785-3ac0-4094-986b-f1b7d0d43006" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/tasks/task.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/envs/chessenv.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/models/counterfactual.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/optimization/mcts.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/optimization/monte_carlo_cfsearch.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/trained_models/stockfish_15.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fact/gridworld.json" beforeDir="false" afterPath="$PROJECT_DIR$/fact/gridworld.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/baselines/autoenc.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/optimization/autoenc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/baselines/genetic_baseline.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/optimization/genetic_baseline.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/objectives/baseline_objs.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/objectives/baseline_objs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/objectives/rl_objs.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/objectives/rl_objs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/temporal_cf/monte_carlo_cfsearch.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/temporal_cf/monte_carlo_cfsearch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/tasks/task.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/task.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/temporal_cf/mcts_state.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/temporal_cf/monte_carlo_cfsearch.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +75,12 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/test_env.py" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\trained_models" />
+      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\src\optimization" />
+    </key>
   </component>
   <component name="RunManager" selected="Python.main">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
@@ -141,7 +158,11 @@
       <workItem from="1666606577840" duration="19325000" />
       <workItem from="1666871638713" duration="14041000" />
       <workItem from="1667313946625" duration="10012000" />
-      <workItem from="1667381587103" duration="5935000" />
+      <workItem from="1667381587103" duration="44529000" />
+      <workItem from="1667556887653" duration="17828000" />
+      <workItem from="1667588248594" duration="17000" />
+      <workItem from="1667645308779" duration="24101000" />
+      <workItem from="1667821735645" duration="2175000" />
     </task>
     <servers />
   </component>
@@ -174,69 +195,81 @@
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
     <state x="765" y="296" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1160@0.0.1920.1160" timestamp="1663943914010" />
+    <state x="454" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1667569631538">
+      <screen x="0" y="0" width="1536" height="920" />
+    </state>
+    <state x="454" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1536.920@0.0.1536.920" timestamp="1667569631538" />
     <state x="552" y="259" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1664980491600">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
     <state x="552" y="259" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1536.920@0.0.1536.920" timestamp="1664980491600" />
     <state x="690" y="327" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1160@0.0.1920.1160" timestamp="1664365264280" />
-    <state x="494" y="554" width="894" height="326" key="#xdebugger.evaluate" timestamp="1667387353831">
+    <state x="415" y="386" width="894" height="534" key="#xdebugger.evaluate" timestamp="1667765369062">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="494" y="554" width="894" height="326" key="#xdebugger.evaluate/0.0.1536.920@0.0.1536.920" timestamp="1667387353831" />
+    <state x="415" y="386" width="894" height="534" key="#xdebugger.evaluate/0.0.1536.920@0.0.1536.920" timestamp="1667765369062" />
     <state x="384" y="446" width="1444" height="714" key="#xdebugger.evaluate/0.0.1920.1160@0.0.1920.1160" timestamp="1664561960098" />
-    <state x="548" y="214" key="FileChooserDialogImpl" timestamp="1666258384786">
+    <state width="931" height="466" key="DebuggerActiveHint" timestamp="1667476394944">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="548" y="214" key="FileChooserDialogImpl/0.0.1536.920@0.0.1536.920" timestamp="1666258384786" />
-    <state width="1493" height="410" key="GridCell.Tab.0.bottom" timestamp="1667388454478">
+    <state width="931" height="466" key="DebuggerActiveHint/0.0.1536.920@0.0.1536.920" timestamp="1667476394944" />
+    <state x="548" y="214" key="FileChooserDialogImpl" timestamp="1667410688640">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="410" key="GridCell.Tab.0.bottom/0.0.1536.920@0.0.1536.920" timestamp="1667388454478" />
+    <state x="548" y="214" key="FileChooserDialogImpl/0.0.1536.920@0.0.1536.920" timestamp="1667410688640" />
+    <state width="1493" height="356" key="GridCell.Tab.0.bottom" timestamp="1667763524240">
+      <screen x="0" y="0" width="1536" height="920" />
+    </state>
+    <state width="1493" height="356" key="GridCell.Tab.0.bottom/0.0.1536.920@0.0.1536.920" timestamp="1667763524240" />
     <state width="1877" height="264" key="GridCell.Tab.0.bottom/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="410" key="GridCell.Tab.0.center" timestamp="1667388454478">
+    <state width="1493" height="356" key="GridCell.Tab.0.center" timestamp="1667763524240">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="410" key="GridCell.Tab.0.center/0.0.1536.920@0.0.1536.920" timestamp="1667388454478" />
+    <state width="1493" height="356" key="GridCell.Tab.0.center/0.0.1536.920@0.0.1536.920" timestamp="1667763524240" />
     <state width="1877" height="264" key="GridCell.Tab.0.center/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="410" key="GridCell.Tab.0.left" timestamp="1667388454478">
+    <state width="1493" height="356" key="GridCell.Tab.0.left" timestamp="1667763524240">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="410" key="GridCell.Tab.0.left/0.0.1536.920@0.0.1536.920" timestamp="1667388454478" />
+    <state width="1493" height="356" key="GridCell.Tab.0.left/0.0.1536.920@0.0.1536.920" timestamp="1667763524240" />
     <state width="1877" height="264" key="GridCell.Tab.0.left/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="410" key="GridCell.Tab.0.right" timestamp="1667388454478">
+    <state width="1493" height="356" key="GridCell.Tab.0.right" timestamp="1667763524240">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="410" key="GridCell.Tab.0.right/0.0.1536.920@0.0.1536.920" timestamp="1667388454478" />
+    <state width="1493" height="356" key="GridCell.Tab.0.right/0.0.1536.920@0.0.1536.920" timestamp="1667763524240" />
     <state width="1877" height="264" key="GridCell.Tab.0.right/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="410" key="GridCell.Tab.1.bottom" timestamp="1667389369526">
+    <state width="1493" height="356" key="GridCell.Tab.1.bottom" timestamp="1667762418621">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="410" key="GridCell.Tab.1.bottom/0.0.1536.920@0.0.1536.920" timestamp="1667389369526" />
+    <state width="1493" height="356" key="GridCell.Tab.1.bottom/0.0.1536.920@0.0.1536.920" timestamp="1667762418621" />
     <state width="1877" height="264" key="GridCell.Tab.1.bottom/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="410" key="GridCell.Tab.1.center" timestamp="1667389369526">
+    <state width="1493" height="356" key="GridCell.Tab.1.center" timestamp="1667762418621">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="410" key="GridCell.Tab.1.center/0.0.1536.920@0.0.1536.920" timestamp="1667389369526" />
+    <state width="1493" height="356" key="GridCell.Tab.1.center/0.0.1536.920@0.0.1536.920" timestamp="1667762418621" />
     <state width="1877" height="264" key="GridCell.Tab.1.center/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="410" key="GridCell.Tab.1.left" timestamp="1667389369526">
+    <state width="1493" height="356" key="GridCell.Tab.1.left" timestamp="1667762418620">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="410" key="GridCell.Tab.1.left/0.0.1536.920@0.0.1536.920" timestamp="1667389369526" />
+    <state width="1493" height="356" key="GridCell.Tab.1.left/0.0.1536.920@0.0.1536.920" timestamp="1667762418620" />
     <state width="1877" height="264" key="GridCell.Tab.1.left/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="410" key="GridCell.Tab.1.right" timestamp="1667389369526">
+    <state width="1493" height="356" key="GridCell.Tab.1.right" timestamp="1667762418621">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="410" key="GridCell.Tab.1.right/0.0.1536.920@0.0.1536.920" timestamp="1667389369526" />
+    <state width="1493" height="356" key="GridCell.Tab.1.right/0.0.1536.920@0.0.1536.920" timestamp="1667762418621" />
     <state width="1877" height="264" key="GridCell.Tab.1.right/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
     <state x="277" y="105" key="SettingsEditor" timestamp="1664790472157">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
     <state x="277" y="105" key="SettingsEditor/0.0.1536.920@0.0.1536.920" timestamp="1664790472157" />
-    <state width="775" height="467" key="XDebugger.FullValuePopup" timestamp="1666095245185">
+    <state width="775" height="467" key="XDebugger.FullValuePopup" timestamp="1667568867522">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="775" height="467" key="XDebugger.FullValuePopup/0.0.1536.920@0.0.1536.920" timestamp="1666095245185" />
+    <state width="775" height="467" key="XDebugger.FullValuePopup/0.0.1536.920@0.0.1536.920" timestamp="1667568867522" />
     <state width="968" height="588" key="XDebugger.FullValuePopup/0.0.1920.1160@0.0.1920.1160" timestamp="1664194180845" />
+    <state x="586" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1667745983752">
+      <screen x="0" y="0" width="1536" height="920" />
+    </state>
+    <state x="586" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.920@0.0.1536.920" timestamp="1667745983752" />
     <state x="512" y="309" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1664196282620">
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
@@ -245,10 +278,14 @@
       <screen x="0" y="0" width="1920" height="1160" />
     </state>
     <state x="0" y="0" width="1467" height="742" key="dock-window-1/0.0.1920.1160@0.0.1920.1160" timestamp="1663953826652" />
-    <state x="498" y="202" width="672" height="538" key="search.everywhere.popup" timestamp="1666877224876">
+    <state x="349" y="115" key="editAsTableFormatDialogDimension" timestamp="1667477238502">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="498" y="202" width="672" height="538" key="search.everywhere.popup/0.0.1536.920@0.0.1536.920" timestamp="1666877224876" />
+    <state x="349" y="115" key="editAsTableFormatDialogDimension/0.0.1536.920@0.0.1536.920" timestamp="1667477238502" />
+    <state x="498" y="202" width="672" height="538" key="search.everywhere.popup" timestamp="1667573182052">
+      <screen x="0" y="0" width="1536" height="920" />
+    </state>
+    <state x="498" y="202" width="672" height="538" key="search.everywhere.popup/0.0.1536.920@0.0.1536.920" timestamp="1667573182052" />
     <state x="623" y="255" width="672" height="678" key="search.everywhere.popup/0.0.1920.1160@0.0.1920.1160" timestamp="1663674413934" />
   </component>
   <component name="XDebuggerManager">
@@ -294,16 +331,6 @@
           <line>92</line>
           <option name="timeStamp" value="108" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/temporal_cf/monte_carlo_cfsearch.py</url>
-          <line>36</line>
-          <option name="timeStamp" value="201" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/temporal_cf/monte_carlo_cfsearch.py</url>
-          <line>53</line>
-          <option name="timeStamp" value="202" />
-        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -321,6 +348,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/temporalCFs$test.coverage" NAME="test Coverage Results" MODIFIED="1666282525625" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/temporalCFs$main.coverage" NAME="main Coverage Results" MODIFIED="1667388454370" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/temporalCFs$main.coverage" NAME="main Coverage Results" MODIFIED="1667759896762" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
