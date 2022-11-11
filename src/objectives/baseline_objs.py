@@ -19,6 +19,8 @@ class BaselineObjectives:
                        'realistic': -1,
                        'actionable': -1}  # because BO_MCTS maximizes value
 
+        self.num_objectives = len(self.lmbdas)
+
     def get_ind_rews(self, fact, cf, target_action, actions, cummulative_reward):
         objectives = self.get_objectives(fact)
         contraints = self.get_constraints(fact, target_action)

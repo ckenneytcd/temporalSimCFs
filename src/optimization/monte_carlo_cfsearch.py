@@ -14,22 +14,19 @@ class MCTSSearch:
 
     def generate_counterfactuals(self, fact, target):
         mcts_solver = MCTS(self.env, self.bb_model, self.obj, fact, target, max_level=10)
-        tree_size, time = mcts_solver.search(init_state=fact, num_iter=100)
+        found = False
+
+        n_iter = 200
+        tree_size, time = mcts_solver.search(init_state=fact, num_iter=n_iter)
 
         all_nodes = self.traverse(mcts_solver.root)
-        print('Expanded {} nodes'.format(len(all_nodes)))
 
         potential_cf = [CF(n.state, True, n.prev_actions, n.cummulative_reward, n.get_reward(), tree_size, time)
                         for n in all_nodes if n.is_terminal()]
 
-        print('Found {} valid counterfactuals'.format(len(potential_cf)))
-        for cf in potential_cf:
-            self.env.render_state(cf.cf_state)
-            print('Value: {}'.format(cf.value))
-
         # return only the best one
         if len(potential_cf):
-            best_cf_ind = np.argmax(np.array([cf.value for cf in potential_cf]))
+            best_cf_ind = np.argmax([cf.value for cf in potential_cf])
             best_cf = potential_cf[best_cf_ind]
         else:
             return None

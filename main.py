@@ -41,18 +41,22 @@ def main():
     baseline_obj = BaselineObjectives(env, bb_model, vae, enc_data, env.state_dim)
     rl_obj = RLObjs(env, bb_model, max_actions=10)
 
+    # get facts
+    n_facts = 200
+    facts = dataset._dataset.sample(n=n_facts).values
+
     # define methods
     BO_GEN = GeneticBaseline(env, bb_model, dataset._dataset, baseline_obj)
     BO_MCTS = MCTSSearch(env, bb_model, dataset._dataset, baseline_obj)
     RL_MCTS = MCTSSearch(env, bb_model, dataset._dataset, rl_obj)
 
     # method names
-    methods = [RL_MCTS]
-    method_names = ['RL_MCTS']
+    methods = [BO_MCTS, RL_MCTS]
+    method_names = ['BO_MCTS', 'RL_MCTS']
 
     for i, m in enumerate(methods):
         eval_path = 'eval/{}/{}/rl_obj_results'.format(task_name, method_names[i])
-        task = Task(task_name, env, bb_model, dataset, m, method_names[i], rl_obj, eval_path)
+        task = Task(task_name, facts, env, bb_model, dataset, m, method_names[i], rl_obj, eval_path)
         task.run_experiment()
 
 if __name__ == '__main__':

@@ -60,6 +60,15 @@ class MCTSNode:
     def get_reward(self):
         return self.obj.get_reward(self.fact, self.state, self.target_action, self.prev_actions, self.cummulative_reward)
 
+    def clone(self):
+        clone = MCTSNode(self.state, None, None, None, self.env, self.bb_model,  self.obj, self.fact, self.target_action)
+        clone.prev_actions = self.prev_actions
+        clone.cummulative_reward = self.cummulative_reward
+
+        return clone
+
+    def is_valid(self):
+        return self.env.realistic(self.state)
 
 class MCTS:
 
@@ -74,24 +83,27 @@ class MCTS:
 
         self.tree_size = 0
 
-    def search(self, init_state, num_iter=1000):
+    def search(self, init_state, num_iter=200):
         self.root = MCTSNode(init_state, None, None, 0, self.env, self.bb_model, self.obj, self.fact, self.target_action)
 
-        for i in range(num_iter):
+        found = False
+        i = 0
+        while i < num_iter:
+            i += 1
+
             node = self.select(self.root)
 
-            new_nodes, action = self.expand(node)
+            if not node.is_terminal():
+                new_nodes, action = self.expand(node)
 
-            for n in new_nodes:
+                found = len([nn for nn in new_nodes if nn.is_terminal()])
 
-                rew = self.simulate(n)
-                n.value = rew
+                for n in new_nodes:
+                    rew = self.simulate(n.clone())
+                    n.value = rew
 
-            if len(new_nodes):
-                self.backpropagate(new_nodes[0].parent)
-
-            if i % 10 == 0:
-                print('Ran iteration {}, expanded {} nodes'.format(i, self.tree_size))
+                if len(new_nodes):
+                    self.backpropagate(new_nodes[0].parent)
 
         return self.tree_size, 0
 
@@ -146,18 +158,20 @@ class MCTS:
                 node.expanded_actions.append(action)
 
                 for i, ns in enumerate(new_states):
-                    try:
-                        node.children[action].append(ns)
-                    except KeyError:
-                        node.children[action] = [ns]
+                    if ns.is_valid():
+                        try:
+                            node.children[action].append(ns)
+                        except KeyError:
+                            node.children[action] = [ns]
 
-                    nns.append(ns)
+                        nns.append(ns)
 
-                    self.tree_size += 1
+                        self.tree_size += 1
 
         return nns, action
 
     def simulate(self, node):
+        node = node.clone()
         evaluation = 0.0
         l = 0
         n_sim = 50
@@ -182,6 +196,9 @@ class MCTS:
             node.n_visits += 1
 
             for a in node.expanded_actions:
-                node.Q_values[a] = np.mean([n.value for n in node.children[a]])
+                try:
+                    node.Q_values[a] = np.mean([n.value for n in node.children[a]])
+                except KeyError:
+                    node.Q_values[a] = -1000
 
             node = node.parent
