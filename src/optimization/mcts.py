@@ -32,13 +32,13 @@ class MCTSNode:
         return self.env.get_actions(self.state)
 
     def is_terminal(self):
-        return self.env.check_done(self.state) or self.bb_model.predict(self.state) == self.target_action
+        return self.env.check_done(self.state) or self.bb_model.predict(self.state) == self.target_action or self.level > 5
 
     def take_action(self, action):
         nns = []
         rewards = []
 
-        for i in range(2 ** 5):
+        for i in range(20):
             self.env.reset()
             self.env.set_state(self.state)
 
@@ -97,6 +97,7 @@ class MCTS:
                 new_nodes, action = self.expand(node)
 
                 found = len([nn for nn in new_nodes if nn.is_terminal()])
+                print('Iteration = {} Found = {}'.format(i, found))
 
                 for n in new_nodes:
                     rew = self.simulate(n.clone())
@@ -172,12 +173,12 @@ class MCTS:
 
     def simulate(self, node):
         node = node.clone()
-        evaluation = 0.0
-        l = 0
         n_sim = 50
 
         for i in range(n_sim):
             evals = []
+            l = 0
+            evaluation = 0.0
             while not node.is_terminal() and l < self.max_level:
                 l += 1
 

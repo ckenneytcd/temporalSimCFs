@@ -1,5 +1,8 @@
 import gym
 import chess
+import chess.engine
+import numpy as np
+from stockfish import Stockfish
 
 
 class ChessEnv(gym.Env):
@@ -13,8 +16,23 @@ class ChessEnv(gym.Env):
         self.expert = expert
 
     def step(self, action):
-        move = chess.Move.from_uci(action)
-        self.board.push(move)
+        if isinstance(action, str):
+            action = chess.Move.from_uci(action)
+
+        self.board.push(action)
+
+        # play for the opponent -- source of stochasticity
+        possible_opp_moves = self.get_actions(self.board)
+
+        if len(possible_opp_moves) == 0:
+            rew = self.board.is_checkmate()
+            return self.state, rew*1000, True, {}
+
+        opp_move = np.random.choice(possible_opp_moves)
+        if isinstance(opp_move, str):
+            opp_move = chess.Move.from_uci(opp_move)
+
+        self.board.push(opp_move)
 
         new_state = self.from_fen_to_array(self.board.fen())
 
@@ -36,7 +54,6 @@ class ChessEnv(gym.Env):
     def reset(self):
         self.board = chess.Board()
         self.state = self.from_fen_to_array(self.board.fen())
-
 
         return self.state
 
@@ -60,11 +77,19 @@ class ChessEnv(gym.Env):
         return state
 
     def get_actions(self, state):
-        board = chess.Board(state)
-        return board.legal_moves
+        if isinstance(state, chess.Board):
+            board = state
+        else:
+            fen = self.from_array_to_fen(state)
+            board = chess.Board(fen)
+
+        legal_moves = board.legal_moves
+        legal_actions = [m.uci() for m in legal_moves]
+        return legal_actions
 
     def set_state(self, state):
-        self.board = chess.Board(state)
+        fen = self.from_array_to_fen(state)
+        self.board = chess.Board(fen)
 
     def check_done(self, state):
         fen = self.from_array_to_fen(state)
@@ -76,16 +101,32 @@ class ChessEnv(gym.Env):
         return sum(s1.squeeze() != s2.squeeze())
 
     def calculate_reward(self, state, new_state):
-        return self.expert.analyse(new_state).score - self.expert.analyse.eval(state).score
+        old_fen = self.from_array_to_fen(state)
+        new_fen = self.from_array_to_fen(new_state)
+
+        expert = Stockfish('trained_models/stockfish_15.exe')
+        expert.set_fen_position(old_fen)
+
+        win_old = expert.get_wdl_stats()[0] / 1000.0  # TODO: this should depend on the players whose turn it is
+
+        expert.set_fen_position(new_fen)
+
+        win_new = expert.get_wdl_stats()[0] / 1000.0
+
+        return win_new - win_old
 
     def from_array_to_fen(self, array):
-        board = chess.Board()
+        board = chess.Board(fen=None)  # initializing empty board
 
-        for i, square in enumerate(chess.SQUARE_NAMES):
-            piece_type = array[i] % 6
-            piece_color = array[i] > 0
-            piece = chess.Piece(piece_type, piece_color)
-            board.set_piece_at(square, piece)
+        # filling the board with pieces
+        for i, sn in enumerate(chess.SQUARE_NAMES):
+            if array[i] != 0:
+                piece_type = ((array[i]-1) % 6) + 1
+                piece_color = array[i] > 6
+                piece = chess.Piece(piece_type, piece_color)
+
+                square = chess.SQUARE_NAMES.index(sn)
+                board.set_piece_at(square, piece)
 
         turn = array[-1]
         board.turn = turn
@@ -96,10 +137,17 @@ class ChessEnv(gym.Env):
         board = chess.Board(fen)
         array = []
 
-        for square in chess.SQUARE_NAMES:
+        for sn in chess.SQUARE_NAMES:
+            square = chess.SQUARE_NAMES.index(sn)
             piece = board.piece_at(square)
-            array.append(piece.piece_type + piece.color * 6)
+            if piece is not None:
+                array.append(piece.piece_type + piece.color * 6)
+            else:
+                array.append(0)
 
         array.append(board.turn)
 
-        return array
+        return np.array(array)
+
+    def writable_state(self, s):
+        return self.from_array_to_fen(s)

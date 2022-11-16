@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 
 class Dataset:
@@ -10,22 +11,21 @@ class Dataset:
 
         self._dataset = self.generate_dataset(env, bb_model)
 
-    def generate_dataset(self, env, model, n_ep=10000):
+    def generate_dataset(self, env, model, n_ep=1):
         print('Generating dataset...')
         ds = []
 
-        for i in range(n_ep):
-
+        for i in tqdm(range(n_ep)):
             obs = env.reset()
-
             done = False
+
             while not done:
                 ds.append(list(obs))
                 rand = np.random.randint(0, 2)
                 if rand == 0:
                     action = model.predict(obs)
                 else:
-                    action = env.action_space.sample()
+                    action = np.random.choice(env.get_actions(obs))
 
                 obs, rew, done,  _ = env.step(action)
 

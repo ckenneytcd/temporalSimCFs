@@ -9,9 +9,8 @@ from src.utils.utils import load_fact
 
 class Task:
 
-    def __init__(self, task_name, facts, env, bb_model, dataset, method, method_name, objs, eval_path):
+    def __init__(self, task_name, env, bb_model, dataset, method, method_name, objs, eval_path):
         self.task_name = task_name
-        self.facts = facts
         self.env = env
         self.bb_model = bb_model
         self.dataset = dataset
@@ -20,20 +19,25 @@ class Task:
         self.eval_path = eval_path
         self.objs = objs
 
-        self.n_facts = 10
-
-    def run_experiment(self):
+    def run_experiment(self, facts, targets=None):
         print('Running experiment for {} task with {}'.format(self.task_name, self.method_name))
-
-        print('Finding counterfactuals for {} facts'.format(len(self.facts)))
+        print('Finding counterfactuals for {} facts'.format(len(facts)))
 
         # get cfs for facts
         eval_dict = {}
         cnt = 0
-        for i in tqdm(range(len(self.facts))):
-            f = self.facts[i]
-            targets = self.get_targets(f, self.env, self.bb_model)
-            for t in targets:
+        for i in tqdm(range(len(facts))):
+            f = facts[i]
+
+            if isinstance(f, dict):
+                f = self.env.generate_state_from_json(f)
+
+            if targets is None:
+                ts = self.get_targets(f, self.env, self.bb_model)
+            else:
+                ts = [targets[i]]
+
+            for t in ts:
                 cf = self.method.generate_counterfactuals(f, t)
 
                 if cf is None:
@@ -68,9 +72,11 @@ class Task:
             ind_rew = [0] * self.objs.num_objectives
             objs_names = list(self.objs.lmbdas.keys())
             df = pd.DataFrame([ind_rew], columns=objs_names)
+
             df['searched_nodes'] = 0
             df['total_reward'] = 0
             df['time'] = 0
+            df['cf'] = 0
 
         else:
             ind_rew = self.objs.get_ind_rews(f, cf.cf_state, t, cf.actions, cf.cummulative_reward)
@@ -81,9 +87,11 @@ class Task:
             df['total_reward'] = total_rew
             df['time'] = cf.time
 
+            df['cf'] =  self.env.writable_state(cf.state)
+
 
         # add additional parameters like time and tree size
-        df['fact'] = list(np.tile(f, (len(df), 1)))
+        df['fact'] = list(np.tile(self.env.writable_state(f), (len(df), 1)))
         df['target'] = t
         df['found'] = found
 

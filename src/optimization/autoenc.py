@@ -32,7 +32,6 @@ class AutoEncoder(nn.Module):
         self.encoder = nn.Sequential(*lst_encoder)
         self.encoder = nn.Sequential(self.encoder, nn.Linear(layers[-2], latent_dim))
 
-
         lst_decoder = []
         for i in range(len(layers) - 2, 0, -1):
             lst_decoder.append(nn.Linear(layers[i + 1], layers[i]))

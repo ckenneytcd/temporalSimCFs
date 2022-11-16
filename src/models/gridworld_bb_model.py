@@ -1,7 +1,7 @@
 from stable_baselines3 import DQN
 
 
-class BBModel():
+class GridworldBBModel():
 
     def __init__(self, env, model_path):
         self.model_path = model_path

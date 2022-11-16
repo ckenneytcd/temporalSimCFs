@@ -51,7 +51,7 @@ class RLObjs:
 
     def get_constraints(self, fact, target):
         return {
-            'validity': lambda x: abs(self.bb_model.predict(x) - target),  # validity
+            'validity': lambda x: self.bb_model.predict(x) != target,  # validity
             'realistic': lambda x: 1 - self.env.realistic(x),  # realistic
             'actionable': lambda x: 1 - self.env.actionable(x, fact)  # actionable
         }
@@ -66,19 +66,25 @@ class RLObjs:
         # run simulations from fact with actions
         n_sim = 100
 
+
         cnt = 0
         for s in range(n_sim):
             self.env.reset()
             self.env.set_state(fact)
 
+            available_actions = self.env.get_actions(x)
+
             done = False
             early_break = False
             for a in actions:
-                if done:
+                if done or (a not in available_actions):
                     early_break = True
                     break
 
                 obs, rew, done, _ = self.env.step(a)
+
+                available_actions = self.env.get_actions(obs)
+
 
             if not early_break:
                 # count how many times  ends up in x
