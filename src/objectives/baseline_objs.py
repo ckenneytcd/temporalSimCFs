@@ -12,9 +12,9 @@ class BaselineObjectives:
         self.n_var = n_var
         self.enc_dataset = enc_dataset
 
-        self.lmbdas = {'proximity': -0.33,
-                       'sparsity': -0.33,
-                       'dmc': -0.33,
+        self.lmbdas = {'proximity': -1,
+                       'sparsity': -1,
+                       'dmc': -1,
                        'validity': 0,
                        'realistic': -1,
                        'actionable': -1}  # because BO_MCTS maximizes value
@@ -35,6 +35,13 @@ class BaselineObjectives:
 
         return rewards
 
+    def get_collapsed_obj(self, fact):
+        objs = self.get_objectives(fact)
+
+        collapsed_obj = lambda x: sum([objs[k](x) * self.lmbdas[k] for k in objs.keys()])
+
+        return collapsed_obj
+
     def get_reward(self, fact, cf, target_action, actions=None, cummulative_reward=0):
         objectives = self.get_objectives(fact)
         contraints = self.get_constraints(fact, target_action)
@@ -50,6 +57,7 @@ class BaselineObjectives:
         return final_rew
 
     def get_objectives(self, fact):
+        self.max_proximity = self.enc.max_diff(fact)
         return {
             'proximity': lambda x: self.proximity(x, fact),
             'sparsity': lambda x: self.sparsity(x, fact),
@@ -64,15 +72,15 @@ class BaselineObjectives:
         }
 
     def proximity(self, x, fact):
-            x_tensor = torch.tensor(x).squeeze()
-            enc_x = self.enc.encode(x_tensor)
+        x_tensor = torch.tensor(x).squeeze()
+        enc_x = self.enc.encode(x_tensor)
 
-            fact_tensor = torch.tensor(fact).squeeze()
-            enc_fact = self.enc.encode(fact_tensor)
+        fact_tensor = torch.tensor(fact).squeeze()
+        enc_fact = self.enc.encode(fact_tensor)
 
-            diff = abs(torch.subtract(enc_x, enc_fact))
+        diff = abs(torch.subtract(enc_x, enc_fact))
 
-            return sum(diff).item()
+        return sum(diff).item() / self.max_proximity
 
     def sparsity(self, x, fact):
         return (sum(fact[:25] != x[:25]) * 1.0).item()

@@ -19,7 +19,7 @@ from src.utils.utils import seed_everything, load_fact
 def main():
     seed_everything(seed=1)
 
-    task_name = 'chess'
+    task_name = 'gridworld'
 
     # define paths
     model_path = 'trained_models/{}'.format(task_name)
@@ -37,33 +37,37 @@ def main():
 
     # define models
     dataset = Dataset(env, bb_model)
-    # train_dataset, test_dataset = dataset.split_dataset(frac=0.8)
-    # vae = AutoEncoder(layers=[env.state_dim, 128, 8])
-    # vae.fit(train_dataset, test_dataset)
-    # enc_data = vae.encode(torch.tensor(dataset._dataset.values))[0]
-
-    # define objectives
-    # baseline_obj = BaselineObjectives(env, bb_model, vae, enc_data, env.state_dim)
+    train_dataset, test_dataset = dataset.split_dataset(frac=0.8)
+    vae = AutoEncoder(layers=[env.state_dim, 128, 16])
+    vae.fit(train_dataset, test_dataset)
+    enc_data = vae.encode(torch.tensor(dataset._dataset.values))[0]
+    #
+    # # define objectives
+    baseline_obj = BaselineObjectives(env, bb_model, vae, enc_data, env.state_dim)
     rl_obj = RLObjs(env, bb_model, max_actions=10)
 
     # get facts
     n_facts = 100
-    # facts = dataset._dataset.sample(n=n_facts).values
+    # dataset_path = 'datasets/{}/facts.csv'.format(task_name)
+    # facts = dataset._dataset.sample(n=n_facts)
+    # facts.to_csv(dataset_path)
+    # facts = facts.values
     facts, targets = load_fact(fact_file)
 
     # define methods n
-    # BO_GEN = GeneticBaseline(env, bb_model, dataset._dataset, baseline_obj)
-    # BO_MCTS = MCTSSearch(env, bb_model, dataset._dataset, baseline_obj)
+    BO_GEN = GeneticBaseline(env, bb_model, dataset._dataset, baseline_obj)
+    BO_MCTS = MCTSSearch(env, bb_model, dataset._dataset, baseline_obj)
     RL_MCTS = MCTSSearch(env, bb_model, dataset._dataset, rl_obj)
 
     # method names
-    methods = [RL_MCTS]
+    methods = [ RL_MCTS]
     method_names = ['RL_MCTS']
 
     for i, m in enumerate(methods):
+        print('\n------------------------ {} ---------------------------------------\n'.format(method_names[i]))
         eval_path = 'eval/{}/{}/rl_obj_results'.format(task_name, method_names[i])
         task = Task(task_name, env, bb_model, dataset, m, method_names[i], rl_obj, eval_path)
-        task.run_experiment(facts, targets)
+        task.run_experiment(facts, [5]*len(facts))
 
 
 if __name__ == '__main__':

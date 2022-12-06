@@ -57,6 +57,8 @@ class RLObjs:
         }
 
     def cost(self, x, fact, actions, cummulative_rew):
+        if not len(actions):
+            return 0
         return (cummulative_rew*1.0) / (len(actions) * -1)  # max penalty is -1, across the path -1 * len(actions)
 
     def reachability(self, x, fact, actions):
@@ -65,7 +67,6 @@ class RLObjs:
     def stochasticity(self, x, fact, actions, target_action):
         # run simulations from fact with actions
         n_sim = 100
-
 
         cnt = 0
         for s in range(n_sim):
@@ -84,7 +85,6 @@ class RLObjs:
                 obs, rew, done, _ = self.env.step(a)
 
                 available_actions = self.env.get_actions(obs)
-
 
             if not early_break:
                 # count how many times  ends up in x

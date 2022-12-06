@@ -72,12 +72,15 @@ class AutoEncoder(nn.Module):
         self,
         xtrain: Union[pd.DataFrame, np.ndarray],
         xtest: Union[pd.DataFrame, np.ndarray],
-        epochs=10,
+        epochs=50,
         lr=1e-3,
         batch_size=64,
     ):
         if isinstance(xtrain, pd.DataFrame):
             xtrain = xtrain.values
+
+        if isinstance(xtest, pd.DataFrame):
+            xtest = xtest.values
 
         train_loader = torch.utils.data.DataLoader(
             xtrain, batch_size=batch_size, shuffle=True
@@ -128,6 +131,8 @@ class AutoEncoder(nn.Module):
 
         print("... finished training of Variational Autoencoder.")
 
+        self.dataset = np.concatenate([xtrain, xtest])
+
     def evaluate(self, test_data, epoch, epochs, batch_size=64):
         self.eval()
 
@@ -154,9 +159,25 @@ class AutoEncoder(nn.Module):
             i_batches += 1
 
         print(
-            "[Epoch: {}/{}] [Test MSE: {:.2f}]".format(
+            "[Epoch: {}/{}] [Test MSE: {:.6f}]".format(
                 epoch, epochs, test_loss/i_batches
             )
         )
 
-        self.train()
+        self.encoder.train()
+
+    def max_diff(self, x):
+        self.eval()
+
+        diffs = []
+
+        enc_fact = self.encode(torch.tensor(x).squeeze())
+        for i in self.dataset:
+            i_tensor = torch.tensor(i).squeeze()
+            enc_i = self.encode(i_tensor)
+
+            diff = sum(abs(torch.subtract(enc_i, enc_fact))).item()
+
+            diffs.append(diff)
+
+        return max(diffs)

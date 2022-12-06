@@ -11,28 +11,34 @@ class Dataset:
 
         self._dataset = self.generate_dataset(env, bb_model)
 
-    def generate_dataset(self, env, model, n_ep=1):
-        print('Generating dataset...')
-        ds = []
+    def generate_dataset(self, env, model, n_ep=50000):
+        try:
+            df = pd.read_csv('datasets/gridworld/dataset.csv', index_col=False)
+            print('Loaded dataset with {} samples'.format(len(df)))
+        except FileNotFoundError:
+            print('Generating dataset...')
+            ds = []
 
-        for i in tqdm(range(n_ep)):
-            obs = env.reset()
-            done = False
+            for i in tqdm(range(n_ep)):
+                obs = env.reset()
+                done = False
 
-            while not done:
-                ds.append(list(obs))
-                rand = np.random.randint(0, 2)
-                if rand == 0:
-                    action = model.predict(obs)
-                else:
-                    action = np.random.choice(env.get_actions(obs))
+                while not done:
+                    ds.append(list(obs))
+                    rand = np.random.randint(0, 2)
+                    if rand == 0:
+                        action = model.predict(obs)
+                    else:
+                        action = np.random.choice(env.get_actions(obs))
 
-                obs, rew, done,  _ = env.step(action)
+                    obs, rew, done,  _ = env.step(action)
 
-        df = pd.DataFrame(ds)
-        df = df.drop_duplicates()
+            df = pd.DataFrame(ds)
+            df = df.drop_duplicates()
 
-        print('Generated {} samples!'.format(len(df)))
+            print('Generated {} samples!'.format(len(df)))
+            df.to_csv('datasets/gridworld/dataset.csv', index=False)
+
         return df
 
     def split_dataset(self, frac=0.8):

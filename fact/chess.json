@@ -1,11 +1,11 @@
 [
   {
-    "fen":"7k/2R3p1/6K1/8/3N4/5P1b/4B3/8 w - - 0 1",
-    "target": "c7c8"
+    "fen":"2q1r1k1/1p2nbpp/2p2p2/p1P5/P3N3/6PP/BP3P1K/1Q1R4 w - - 0 1",
+    "target": "e4d6"
   },
   {
-    "fen":"2q1k2r/1p2nbpp/2p2p2/p1P5/P3N3/6PP/BP3P1K/1Q1R4 w - - 0 1",
-    "target": "e4d6"
+    "fen":"7k/2R3p1/6K1/8/3N4/5P1b/4B3/8 w - - 0 1",
+    "target": "c7c8"
   },
   {
     "fen":"2q1kr2/1p2nbpp/2p2p2/p1P4Q/P3N3/6PP/BP3P1K/3R4 w - - 0 1",

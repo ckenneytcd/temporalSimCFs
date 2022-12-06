@@ -48,6 +48,9 @@ class ChessEnv(gym.Env):
         print(self.board)
 
     def render_state(self, state):
+        if not isinstance(state, str):
+            state = self.from_array_to_fen(state)
+
         render_board = chess.Board(state)
         print(render_board)
 
@@ -111,7 +114,14 @@ class ChessEnv(gym.Env):
 
         expert.set_fen_position(new_fen)
 
-        win_new = expert.get_wdl_stats()[0] / 1000.0
+        try:
+            win_new = expert.get_wdl_stats()[0] / 1000.0
+        except AttributeError:
+            board = chess.Board(new_fen)
+            if board.is_checkmate():
+                win_new = 0
+            else:
+                win_new = 0.5
 
         return win_new - win_old
 

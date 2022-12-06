@@ -22,7 +22,7 @@ class Gridworld(gym.Env):
         self.steps = 0
 
         self.lows = np.array([0]*self.state_dim)
-        self.highs = np.array([3] * 25 + [self.max_chopping])
+        self.highs = np.array([5] * 25 + [self.max_chopping])
         self.observation_space = gym.spaces.Box(self.lows, self.highs, shape=(26, ))
         self.action_space = gym.spaces.Discrete(6)
 
@@ -33,9 +33,9 @@ class Gridworld(gym.Env):
         self.ACTIONS = {'RIGHT': 0, 'DOWN': 1, 'LEFT': 2, 'UP': 3, 'CHOP': 4, 'SHOOT': 5}
         self.OBJECTS = {'AGENT': 1, 'MONSTER': 2, 'TREE': 3, 'KILLED_MONSTER': -1}
 
-        self.TREE_TYPES = {3: 1, 4: 3, 5: 5}
+        self.TREE_TYPES = {3: 5, 4: 3, 5: 1}
         self.FERTILITY = {2: 0.1, 7: 0.5, 12: 0.9, 17: 0.5, 22: 0.1}
-        self.TREE_POS_TYPES = {2: 3, 7: 4, 12: 5, 17: 4, 22: 3}
+        self.TREE_POS_TYPES = {2: 5, 7: 4, 12: 3, 17: 4, 22: 5}
         self.TREE_POS = [2, 7, 12, 17, 22]
 
     def step(self, action):
@@ -275,6 +275,16 @@ class Gridworld(gym.Env):
 
         total_trees = len(trees)
 
+        t_pos = [list(i.keys())[0] for i in trees]
+        t_types = [list(i.values())[0] for i in trees]
+
+        for i, t in enumerate(t_pos):
+            if t not in self.TREE_POS:
+                return False
+
+            if t_types[i] != self.TREE_POS_TYPES[t]:
+                return False
+
         if len(agent) != 1:
             return False
         if len(monster) != 1:
@@ -318,5 +328,10 @@ class Gridworld(gym.Env):
 
     def equal_states(self, s1, s2):
         return sum(s1 != s2) == 0
+
+    def writable_state(self, s):
+        agent, monster, trees = self.get_objects(s)
+        ws = 'Agent: {} Monster: {} Trees: {}'.format(agent, monster, trees)
+        return ws
 
 

@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from src.models.nbhd import NBHD
 from src.utils.utils import load_fact
 
 
@@ -32,13 +33,20 @@ class Task:
             if isinstance(f, dict):
                 f = self.env.generate_state_from_json(f)
 
+            print('FACT:')
+            self.env.render_state(f)
+
+            print('TRUE PATH: {}\n---------------------------'.format(self.true_path(self.env, self.bb_model, f)))
+
+            nbhd = NBHD(self.env, f, max_level=1)
+
             if targets is None:
                 ts = self.get_targets(f, self.env, self.bb_model)
             else:
                 ts = [targets[i]]
 
             for t in ts:
-                cf = self.method.generate_counterfactuals(f, t)
+                cf = self.method.generate_counterfactuals(f, t, nbhd)
 
                 if cf is None:
                     found = False
@@ -48,6 +56,9 @@ class Task:
                     found = True
                     e = self.evaluate_cf(f, t, cf, found)
 
+                    print('CF:')
+                    self.env.render_state(cf.cf_state)
+
                     try:
                         eval_dict = {obj: (eval_dict[obj] + obj_val) for obj, obj_val in e.items()}
                     except KeyError:
@@ -55,10 +66,6 @@ class Task:
 
                     cnt += 1
 
-        print('Average objectives for task = {}, method = {}: {}'.format(
-            self.task_name,
-            self.method_name,
-            list({obj: (obj_val*1.0)/cnt for obj, obj_val in eval_dict.items()}.items())))
 
     def get_targets(self, f, env, bb_model):
         pred = bb_model.predict(f)
@@ -79,16 +86,16 @@ class Task:
             df['cf'] = 0
 
         else:
-            ind_rew = self.objs.get_ind_rews(f, cf.cf_state, t, cf.actions, cf.cummulative_reward)
-            total_rew = self.objs.get_reward(f, cf.cf_state, t, cf.actions, cf.cummulative_reward)
+            ind_rew = self.objs.get_ind_rews(f, cf.cf_state, t, cf.actions, cf.cumulative_reward)
+            ind_rew = {k: [v] for k, v in ind_rew.items()}
+            total_rew = self.objs.get_reward(f, cf.cf_state, t, cf.actions, cf.cumulative_reward)
 
             df = pd.DataFrame.from_dict(ind_rew)
             df['searched_nodes'] = cf.searched_nodes
             df['total_reward'] = total_rew
             df['time'] = cf.time
 
-            df['cf'] =  self.env.writable_state(cf.state)
-
+            df['cf'] = self.env.writable_state(cf.cf_state)
 
         # add additional parameters like time and tree size
         df['fact'] = list(np.tile(self.env.writable_state(f), (len(df), 1)))
@@ -99,3 +106,17 @@ class Task:
         df.to_csv(self.eval_path, mode='a', header=header)
 
         return ind_rew
+
+    def true_path(self, env, model, start_state):
+        env.reset()
+        env.set_state(start_state)
+
+        done = False
+        true_path = []
+        obs = start_state
+        while not done:
+            action = model.predict(obs)
+            true_path.append(action)
+            obs, rew, done, _ = env.step(action)
+
+        return true_path

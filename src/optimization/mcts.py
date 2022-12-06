@@ -21,7 +21,7 @@ class MCTSNode:
         self.children = {}
 
         self.prev_actions = self.parent.prev_actions + [action] if self.parent else []
-        self.cummulative_reward = self.parent.cummulative_reward + rew if self.parent else 0
+        self.cumulative_reward = self.parent.cumulative_reward + rew if self.parent else 0
 
         self.expanded_actions = []
         self.Q_values = {}
@@ -32,13 +32,14 @@ class MCTSNode:
         return self.env.get_actions(self.state)
 
     def is_terminal(self):
-        return self.env.check_done(self.state) or self.bb_model.predict(self.state) == self.target_action or self.level > 5
+        return self.env.check_done(self.state) or self.bb_model.predict(self.state) == self.target_action
 
-    def take_action(self, action):
+    def take_action(self, action, expand=True):
         nns = []
         rewards = []
+        s = 50 if expand else 1
 
-        for i in range(20):
+        for i in range(s):
             self.env.reset()
             self.env.set_state(self.state)
 
@@ -58,12 +59,12 @@ class MCTSNode:
         return nns, rewards
 
     def get_reward(self):
-        return self.obj.get_reward(self.fact, self.state, self.target_action, self.prev_actions, self.cummulative_reward)
+        return self.obj.get_reward(self.fact, self.state, self.target_action, self.prev_actions, self.cumulative_reward)
 
     def clone(self):
         clone = MCTSNode(self.state, None, None, None, self.env, self.bb_model,  self.obj, self.fact, self.target_action)
         clone.prev_actions = self.prev_actions
-        clone.cummulative_reward = self.cummulative_reward
+        clone.cumulative_reward = self.cumulative_reward
 
         return clone
 
@@ -93,15 +94,15 @@ class MCTS:
 
             node = self.select(self.root)
 
-            if not node.is_terminal():
+            if (not node.is_terminal()) and (node.level < self.max_level):
                 new_nodes, action = self.expand(node)
 
                 found = len([nn for nn in new_nodes if nn.is_terminal()])
-                print('Iteration = {} Found = {}'.format(i, found))
 
                 for n in new_nodes:
-                    rew = self.simulate(n.clone())
-                    n.value = rew
+                    # rew = self.simulate(n.clone())
+                    # n.value = rew
+                    n.value = n.get_reward()
 
                 if len(new_nodes):
                     self.backpropagate(new_nodes[0].parent)
@@ -111,7 +112,7 @@ class MCTS:
     def select(self, root):
         node = root
 
-        while not node.is_terminal() and len(node.children) > 0:
+        while (not node.is_terminal()) and (len(node.children) > 0):
             action_vals = {}
 
             for a in node.available_actions():
@@ -173,20 +174,21 @@ class MCTS:
 
     def simulate(self, node):
         node = node.clone()
-        n_sim = 50
+        n_sim = 1
+        evals = []
 
         for i in range(n_sim):
-            evals = []
             l = 0
             evaluation = 0.0
-            while not node.is_terminal() and l < self.max_level:
+            start_node = node.clone()
+            while (not start_node.is_terminal()) and (l < 5):
                 l += 1
 
-                rand_action = np.random.choice(node.available_actions())
-                node = node.take_action(rand_action)[0][0]
+                rand_action = np.random.choice(start_node.available_actions())
+                start_node = start_node.take_action(rand_action, expand=False)[0][0]
 
-                e = node.get_reward()
-                evaluation = e
+                e = start_node.get_reward()
+                evaluation = e.item()
 
             evals.append(evaluation)
 

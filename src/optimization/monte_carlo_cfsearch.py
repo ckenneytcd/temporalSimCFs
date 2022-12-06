@@ -12,19 +12,20 @@ class MCTSSearch:
         self.n_var = env.state_dim
         self.obj = obj
 
-    def generate_counterfactuals(self, fact, target):
-        mcts_solver = MCTS(self.env, self.bb_model, self.obj, fact, target, max_level=5)
+    def generate_counterfactuals(self, fact, target, nbhd=None):
+        mcts_solver = MCTS(self.env, self.bb_model, self.obj, fact, target, max_level=10)
         found = False
 
-        n_iter = 10
+        n_iter = 200
         tree_size, time = mcts_solver.search(init_state=fact, num_iter=n_iter)
 
         all_nodes = self.traverse(mcts_solver.root)
 
-        potential_cf = [CF(n.state, True, n.prev_actions, n.cummulative_reward, n.get_reward(), tree_size, time)
+        potential_cf = [CF(n.state, True, n.prev_actions, n.cumulative_reward, n.get_reward(), tree_size, time)
                         for n in all_nodes if n.is_terminal()]
 
         # return only the best one
+        print('Found {} counterfactuals'.format(len(potential_cf)))
         if len(potential_cf):
             best_cf_ind = np.argmax([cf.value for cf in potential_cf])
             try:
