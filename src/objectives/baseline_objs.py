@@ -21,19 +21,22 @@ class BaselineObjectives:
 
         self.num_objectives = len(self.lmbdas)
 
-    def get_ind_rews(self, fact, cf, target_action, actions, cummulative_reward):
+    def get_ind_rews(self, fact, cf, target_action, actions=None, cummulative_reward=None):
         objectives = self.get_objectives(fact)
         contraints = self.get_constraints(fact, target_action)
 
         rewards = {}
+        total_rew = 0.0
 
         for o_name, o_formula in objectives.items():
             rewards[o_name] = self.lmbdas[o_name] * o_formula(cf)
+            total_rew += rewards[o_name]
 
         for c_name, c_formula in contraints.items():
             rewards[c_name] = self.lmbdas[c_name] * c_formula(cf)
+            total_rew += rewards[c_name]
 
-        return rewards
+        return rewards, total_rew
 
     def get_collapsed_obj(self, fact):
         objs = self.get_objectives(fact)
@@ -66,7 +69,7 @@ class BaselineObjectives:
 
     def get_constraints(self, fact, target):
         return {
-            'validity': lambda x: abs(self.bb_model.predict(x) - target),  # validity
+            'validity': lambda x: int(self.bb_model.predict(x) != target),  # validity
             'realistic': lambda x: 1 - self.env.realistic(x),  # realistic
             'actionable': lambda x: 1 - self.env.actionable(x, fact)  # actionable
         }

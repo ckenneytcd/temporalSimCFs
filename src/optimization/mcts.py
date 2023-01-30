@@ -34,10 +34,10 @@ class MCTSNode:
     def is_terminal(self):
         return self.env.check_done(self.state) or self.bb_model.predict(self.state) == self.target_action
 
-    def take_action(self, action, expand=True):
+    def take_action(self, action, n_expand, expand=True):
         nns = []
         rewards = []
-        s = 50 if expand else 1
+        s = n_expand if expand else 1
 
         for i in range(s):
             self.env.reset()
@@ -73,21 +73,21 @@ class MCTSNode:
 
 class MCTS:
 
-    def __init__(self, env, bb_model, obj, fact, target_action, max_level=10):
+    def __init__(self, env, bb_model, obj, fact, target_action, max_level=10, n_expand=20, c=None):
         self.max_level = max_level
-        self.c = 1 / math.sqrt(2)
+        self.c = c if c is not None else 1 / math.sqrt(2)
         self.env = env
         self.bb_model = bb_model
         self.obj = obj
         self.fact = fact
         self.target_action = target_action
+        self.n_expand = n_expand
 
         self.tree_size = 0
 
     def search(self, init_state, num_iter=200):
         self.root = MCTSNode(init_state, None, None, 0, self.env, self.bb_model, self.obj, self.fact, self.target_action)
 
-        found = False
         i = 0
         while i < num_iter:
             i += 1
@@ -97,11 +97,7 @@ class MCTS:
             if (not node.is_terminal()) and (node.level < self.max_level):
                 new_nodes, action = self.expand(node)
 
-                found = len([nn for nn in new_nodes if nn.is_terminal()])
-
                 for n in new_nodes:
-                    # rew = self.simulate(n.clone())
-                    # n.value = rew
                     n.value = n.get_reward()
 
                 if len(new_nodes):
@@ -150,7 +146,7 @@ class MCTS:
         for action in node.available_actions():
             if action not in node.expanded_actions:
 
-                new_states, new_rewards = node.take_action(action)
+                new_states, new_rewards = node.take_action(action, n_expand=self.n_expand)
 
                 try:
                     node.N_a[action] += 1
@@ -185,7 +181,7 @@ class MCTS:
                 l += 1
 
                 rand_action = np.random.choice(start_node.available_actions())
-                start_node = start_node.take_action(rand_action, expand=False)[0][0]
+                start_node = start_node.take_action(rand_action, n_expand=self.n_expand, expand=False)[0][0]
 
                 e = start_node.get_reward()
                 evaluation = e.item()

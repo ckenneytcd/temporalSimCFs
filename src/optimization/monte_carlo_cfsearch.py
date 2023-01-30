@@ -5,19 +5,23 @@ from src.optimization.mcts import MCTS
 
 class MCTSSearch:
 
-    def __init__(self, env, bb_model, dataset, obj):
+    def __init__(self, env, bb_model, dataset, obj, params, c):
         self.env = env
         self.bb_model = bb_model
         self.dataset = dataset
         self.n_var = env.state_dim
         self.obj = obj
 
+        self.n_iter = params['ts_n_iter']
+        self.n_expand = params['ts_n_expand']
+
+        self.c = c
+
     def generate_counterfactuals(self, fact, target, nbhd=None):
-        mcts_solver = MCTS(self.env, self.bb_model, self.obj, fact, target, max_level=10)
+        mcts_solver = MCTS(self.env, self.bb_model, self.obj, fact, target, c=self.c, max_level=5, n_expand=self.n_expand)
         found = False
 
-        n_iter = 200
-        tree_size, time = mcts_solver.search(init_state=fact, num_iter=n_iter)
+        tree_size, time = mcts_solver.search(init_state=fact, num_iter=self.n_iter)
 
         all_nodes = self.traverse(mcts_solver.root)
 

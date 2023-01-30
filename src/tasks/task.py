@@ -5,12 +5,12 @@ import pandas as pd
 from tqdm import tqdm
 
 from src.models.nbhd import NBHD
-from src.utils.utils import load_fact
+
 
 
 class Task:
 
-    def __init__(self, task_name, env, bb_model, dataset, method, method_name, objs, eval_path):
+    def __init__(self, task_name, env, bb_model, dataset, method, method_name, search_objs, eval_objs, eval_path, nbhd):
         self.task_name = task_name
         self.env = env
         self.bb_model = bb_model
@@ -18,7 +18,9 @@ class Task:
         self.method = method
         self.method_name = method_name
         self.eval_path = eval_path
-        self.objs = objs
+        self.search_objs = search_objs
+        self.eval_objs = eval_objs
+        self.nbhd = nbhd
 
     def run_experiment(self, facts, targets=None):
         print('Running experiment for {} task with {}'.format(self.task_name, self.method_name))
@@ -33,12 +35,10 @@ class Task:
             if isinstance(f, dict):
                 f = self.env.generate_state_from_json(f)
 
-            print('FACT:')
-            self.env.render_state(f)
-
-            print('TRUE PATH: {}\n---------------------------'.format(self.true_path(self.env, self.bb_model, f)))
-
-            nbhd = NBHD(self.env, f, max_level=1)
+            if self.nbhd:
+                nbhd = NBHD(self.env, f, max_level=0)
+            else:
+                nbhd = None
 
             if targets is None:
                 ts = self.get_targets(f, self.env, self.bb_model)
@@ -46,6 +46,9 @@ class Task:
                 ts = [targets[i]]
 
             for t in ts:
+                print('FACT: Target = {}'.format(t))
+                self.env.render_state(f)
+
                 cf = self.method.generate_counterfactuals(f, t, nbhd)
 
                 if cf is None:
@@ -54,18 +57,12 @@ class Task:
                     continue
                 else:
                     found = True
-                    e = self.evaluate_cf(f, t, cf, found)
+                    self.evaluate_cf(f, t, cf, found)
 
                     print('CF:')
                     self.env.render_state(cf.cf_state)
 
-                    try:
-                        eval_dict = {obj: (eval_dict[obj] + obj_val) for obj, obj_val in e.items()}
-                    except KeyError:
-                        eval_dict = e
-
                     cnt += 1
-
 
     def get_targets(self, f, env, bb_model):
         pred = bb_model.predict(f)
@@ -76,28 +73,32 @@ class Task:
 
     def evaluate_cf(self, f, t, cf, found):
         if not found:
-            ind_rew = [0] * self.objs.num_objectives
-            objs_names = list(self.objs.lmbdas.keys())
-            df = pd.DataFrame([ind_rew], columns=objs_names)
+            eval_obj_names = []
 
-            df['searched_nodes'] = 0
+            for obj in self.eval_objs:
+                eval_obj_names += list(obj.lmbdas.keys())
+
+            ind_rew = [0] * len(eval_obj_names)
+            df = pd.DataFrame([ind_rew], columns=eval_obj_names)
+
             df['total_reward'] = 0
-            df['time'] = 0
             df['cf'] = 0
 
         else:
-            ind_rew = self.objs.get_ind_rews(f, cf.cf_state, t, cf.actions, cf.cumulative_reward)
-            ind_rew = {k: [v] for k, v in ind_rew.items()}
-            total_rew = self.objs.get_reward(f, cf.cf_state, t, cf.actions, cf.cumulative_reward)
+            rews = {}
+            for obj in self.eval_objs:
+                ind_rew, total_rew = obj.get_ind_rews(f, cf.cf_state, t, cf.actions, cf.cumulative_reward)
+                ind_rew = {k: [v] for k, v in ind_rew.items()}
+                rews.update(ind_rew)
 
-            df = pd.DataFrame.from_dict(ind_rew)
-            df['searched_nodes'] = cf.searched_nodes
+            df = pd.DataFrame([rews])
+            total_rew = self.search_objs.get_reward(f, cf.cf_state, t, cf.actions, cf.cumulative_reward)
+
+            print(rews)
             df['total_reward'] = total_rew
-            df['time'] = cf.time
 
             df['cf'] = self.env.writable_state(cf.cf_state)
 
-        # add additional parameters like time and tree size
         df['fact'] = list(np.tile(self.env.writable_state(f), (len(df), 1)))
         df['target'] = t
         df['found'] = found

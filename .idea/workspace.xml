@@ -20,25 +20,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4dc09785-3ac0-4094-986b-f1b7d0d43006" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/models/nbhd.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/eval/user_study/LikertRating.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/eval/user_study/answers.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/eval/user_study/study_B.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/evaluate.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/evaluate_user_study.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/params/chess.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/params/gridworld.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eval/gridworld/BO_MCTS/rl_obj_results" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/gridworld/dataset.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datasets/gridworld/facts.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/eval/gridworld/BO_GEN/rl_obj_results" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/eval/gridworld/RL_MCTS/rl_obj_results" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/fact/chess.json" beforeDir="false" afterPath="$PROJECT_DIR$/fact/chess.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fact/gridworld.json" beforeDir="false" afterPath="$PROJECT_DIR$/fact/gridworld.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/envs/chessenv.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/envs/chessenv.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/envs/gridworld.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/envs/gridworld.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models/counterfactual.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/counterfactual.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/models/chess_bb_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/chess_bb_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/models/dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/dataset.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/objectives/baseline_objs.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/objectives/baseline_objs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/objectives/rl_objs.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/objectives/rl_objs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/optimization/autoenc.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/optimization/autoenc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/optimization/genetic_baseline.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/optimization/genetic_baseline.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/optimization/mcts.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/optimization/mcts.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/optimization/monte_carlo_cfsearch.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/optimization/monte_carlo_cfsearch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/tasks/task.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tasks/task.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trained_models/gridworld.zip" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,16 +82,67 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/test_env.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/refactor.py" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\eval\gridworld\RL_MCTS" />
+      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\eval\gridworld\BO_MCTS" />
+      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\eval\gridworld\BO_GEN" />
+      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\eval\user_study" />
       <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\trained_models" />
-      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\src\optimization" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs\eval\gridworld\BO_MCTS" />
+      <recent name="C:\Users\Jasmina\Documents\PhD\temporalCFs" />
     </key>
   </component>
   <component name="RunManager" selected="Python.main">
+    <configuration name="evaluate" type="PythonConfigurationType" factoryName="Python">
+      <module name="temporalCFs" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\Jasmina\anaconda3\envs\temporality\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/evaluate.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="evaluate_user_study" type="PythonConfigurationType" factoryName="Python">
+      <module name="temporalCFs" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\Jasmina\anaconda3\envs\temporality\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/evaluate_user_study.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="temporalCFs" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -100,6 +157,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="refactor" type="PythonConfigurationType" factoryName="Python">
+      <module name="temporalCFs" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\Jasmina\anaconda3\envs\temporality\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/refactor.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -132,6 +211,9 @@
     </configuration>
     <list>
       <item itemvalue="Python.main" />
+      <item itemvalue="Python.evaluate_user_study" />
+      <item itemvalue="Python.evaluate" />
+      <item itemvalue="Python.refactor" />
       <item itemvalue="Python.test" />
     </list>
   </component>
@@ -182,6 +264,18 @@
       <workItem from="1669649955146" duration="32930000" />
       <workItem from="1669799809683" duration="27501000" />
       <workItem from="1669911150397" duration="1227000" />
+      <workItem from="1670320644913" duration="8899000" />
+      <workItem from="1670677475018" duration="617000" />
+      <workItem from="1670849327648" duration="6196000" />
+      <workItem from="1670866686434" duration="7257000" />
+      <workItem from="1670924684042" duration="60543000" />
+      <workItem from="1671208095489" duration="1245000" />
+      <workItem from="1671370055051" duration="83649000" />
+      <workItem from="1672337189980" duration="79000" />
+      <workItem from="1672337451934" duration="194000" />
+      <workItem from="1672337903397" duration="6034000" />
+      <workItem from="1673911432711" duration="77162000" />
+      <workItem from="1674855375630" duration="8866000" />
     </task>
     <servers />
   </component>
@@ -201,33 +295,26 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="331" y="183" width="1089" height="737" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1666258385913">
+    <state x="331" y="63" width="1089" height="857" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1674672528130">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="331" y="183" width="1089" height="737" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.920@0.0.1536.920" timestamp="1666258385913" />
-    <state x="414" y="235" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1160@0.0.1920.1160" timestamp="1663673807139" />
-    <state x="721" y="382" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1664545189137">
-      <screen x="0" y="0" width="1920" height="1160" />
+    <state x="331" y="63" width="1089" height="857" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.920@0.0.1536.920" timestamp="1674672528130" />
+    <state x="577" y="303" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1674663107032">
+      <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="721" y="382" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1160@0.0.1920.1160" timestamp="1664545189137" />
-    <state x="765" y="296" key="#com.intellij.ide.util.MemberChooser" timestamp="1663943914010">
-      <screen x="0" y="0" width="1920" height="1160" />
-    </state>
-    <state x="765" y="296" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1160@0.0.1920.1160" timestamp="1663943914010" />
+    <state x="577" y="303" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.920@0.0.1536.920" timestamp="1674663107032" />
     <state x="454" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1667569631538">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
     <state x="454" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1536.920@0.0.1536.920" timestamp="1667569631538" />
-    <state x="552" y="259" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1664980491600">
+    <state x="499" y="207" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1674569899666">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="552" y="259" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1536.920@0.0.1536.920" timestamp="1664980491600" />
-    <state x="690" y="327" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1160@0.0.1920.1160" timestamp="1664365264280" />
-    <state x="333" y="437" width="1049" height="483" key="#xdebugger.evaluate" timestamp="1669816821450">
+    <state x="499" y="207" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1536.920@0.0.1536.920" timestamp="1674569899666" />
+    <state x="530" y="440" width="883" height="480" key="#xdebugger.evaluate" timestamp="1674728002308">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="333" y="437" width="1049" height="483" key="#xdebugger.evaluate/0.0.1536.920@0.0.1536.920" timestamp="1669816821450" />
-    <state x="384" y="446" width="1444" height="714" key="#xdebugger.evaluate/0.0.1920.1160@0.0.1920.1160" timestamp="1664561960098" />
+    <state x="530" y="440" width="883" height="480" key="#xdebugger.evaluate/0.0.1536.920@0.0.1536.920" timestamp="1674728002308" />
     <state width="998" height="466" key="DebuggerActiveHint" timestamp="1668957306152">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
@@ -236,80 +323,62 @@
       <screen x="0" y="0" width="1536" height="920" />
     </state>
     <state x="93" y="93" width="1350" height="734" key="DiffContextDialog/0.0.1536.920@0.0.1536.920" timestamp="1669801260979" />
-    <state x="548" y="214" key="FileChooserDialogImpl" timestamp="1668440284725">
+    <state x="548" y="214" key="FileChooserDialogImpl" timestamp="1674672525923">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="548" y="214" key="FileChooserDialogImpl/0.0.1536.920@0.0.1536.920" timestamp="1668440284725" />
-    <state width="1493" height="451" key="GridCell.Tab.0.bottom" timestamp="1669912388240">
+    <state x="548" y="214" key="FileChooserDialogImpl/0.0.1536.920@0.0.1536.920" timestamp="1674672525923" />
+    <state width="1493" height="305" key="GridCell.Tab.0.bottom" timestamp="1674813647876">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="451" key="GridCell.Tab.0.bottom/0.0.1536.920@0.0.1536.920" timestamp="1669912388240" />
-    <state width="1877" height="264" key="GridCell.Tab.0.bottom/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="451" key="GridCell.Tab.0.center" timestamp="1669912388240">
+    <state width="1493" height="305" key="GridCell.Tab.0.bottom/0.0.1536.920@0.0.1536.920" timestamp="1674813647876" />
+    <state width="1493" height="305" key="GridCell.Tab.0.center" timestamp="1674813647876">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="451" key="GridCell.Tab.0.center/0.0.1536.920@0.0.1536.920" timestamp="1669912388240" />
-    <state width="1877" height="264" key="GridCell.Tab.0.center/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="451" key="GridCell.Tab.0.left" timestamp="1669912388240">
+    <state width="1493" height="305" key="GridCell.Tab.0.center/0.0.1536.920@0.0.1536.920" timestamp="1674813647876" />
+    <state width="1493" height="305" key="GridCell.Tab.0.left" timestamp="1674813647876">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="451" key="GridCell.Tab.0.left/0.0.1536.920@0.0.1536.920" timestamp="1669912388240" />
-    <state width="1877" height="264" key="GridCell.Tab.0.left/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="451" key="GridCell.Tab.0.right" timestamp="1669912388240">
+    <state width="1493" height="305" key="GridCell.Tab.0.left/0.0.1536.920@0.0.1536.920" timestamp="1674813647876" />
+    <state width="1493" height="305" key="GridCell.Tab.0.right" timestamp="1674813647876">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="451" key="GridCell.Tab.0.right/0.0.1536.920@0.0.1536.920" timestamp="1669912388240" />
-    <state width="1877" height="264" key="GridCell.Tab.0.right/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="167" key="GridCell.Tab.1.bottom" timestamp="1669836697370">
+    <state width="1493" height="305" key="GridCell.Tab.0.right/0.0.1536.920@0.0.1536.920" timestamp="1674813647876" />
+    <state width="1493" height="316" key="GridCell.Tab.1.bottom" timestamp="1674813646077">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="167" key="GridCell.Tab.1.bottom/0.0.1536.920@0.0.1536.920" timestamp="1669836697370" />
-    <state width="1877" height="264" key="GridCell.Tab.1.bottom/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="167" key="GridCell.Tab.1.center" timestamp="1669836697370">
+    <state width="1493" height="316" key="GridCell.Tab.1.bottom/0.0.1536.920@0.0.1536.920" timestamp="1674813646077" />
+    <state width="1493" height="316" key="GridCell.Tab.1.center" timestamp="1674813646077">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="167" key="GridCell.Tab.1.center/0.0.1536.920@0.0.1536.920" timestamp="1669836697370" />
-    <state width="1877" height="264" key="GridCell.Tab.1.center/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="167" key="GridCell.Tab.1.left" timestamp="1669836697370">
+    <state width="1493" height="316" key="GridCell.Tab.1.center/0.0.1536.920@0.0.1536.920" timestamp="1674813646077" />
+    <state width="1493" height="316" key="GridCell.Tab.1.left" timestamp="1674813646077">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="167" key="GridCell.Tab.1.left/0.0.1536.920@0.0.1536.920" timestamp="1669836697370" />
-    <state width="1877" height="264" key="GridCell.Tab.1.left/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state width="1493" height="167" key="GridCell.Tab.1.right" timestamp="1669836697370">
+    <state width="1493" height="316" key="GridCell.Tab.1.left/0.0.1536.920@0.0.1536.920" timestamp="1674813646077" />
+    <state width="1493" height="316" key="GridCell.Tab.1.right" timestamp="1674813646077">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="1493" height="167" key="GridCell.Tab.1.right/0.0.1536.920@0.0.1536.920" timestamp="1669836697370" />
-    <state width="1877" height="264" key="GridCell.Tab.1.right/0.0.1920.1160@0.0.1920.1160" timestamp="1664562310427" />
-    <state x="277" y="105" key="SettingsEditor" timestamp="1664790472157">
+    <state width="1493" height="316" key="GridCell.Tab.1.right/0.0.1536.920@0.0.1536.920" timestamp="1674813646077" />
+    <state x="277" y="105" key="SettingsEditor" timestamp="1671037948530">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="277" y="105" key="SettingsEditor/0.0.1536.920@0.0.1536.920" timestamp="1664790472157" />
-    <state width="775" height="467" key="XDebugger.FullValuePopup" timestamp="1669402819181">
+    <state x="277" y="105" key="SettingsEditor/0.0.1536.920@0.0.1536.920" timestamp="1671037948530" />
+    <state width="775" height="467" key="XDebugger.FullValuePopup" timestamp="1674570129753">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state width="775" height="467" key="XDebugger.FullValuePopup/0.0.1536.920@0.0.1536.920" timestamp="1669402819181" />
-    <state width="968" height="588" key="XDebugger.FullValuePopup/0.0.1920.1160@0.0.1920.1160" timestamp="1664194180845" />
-    <state x="586" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1667745983752">
+    <state width="775" height="467" key="XDebugger.FullValuePopup/0.0.1536.920@0.0.1536.920" timestamp="1674570129753" />
+    <state x="586" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1671529653057">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="586" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.920@0.0.1536.920" timestamp="1667745983752" />
-    <state x="512" y="309" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1664196282620">
-      <screen x="0" y="0" width="1920" height="1160" />
-    </state>
-    <state x="512" y="309" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.0.1920.1160@0.0.1920.1160" timestamp="1664196282620" />
-    <state x="0" y="0" width="1467" height="742" key="dock-window-1" timestamp="1663953826652">
-      <screen x="0" y="0" width="1920" height="1160" />
-    </state>
-    <state x="0" y="0" width="1467" height="742" key="dock-window-1/0.0.1920.1160@0.0.1920.1160" timestamp="1663953826652" />
-    <state x="349" y="115" key="editAsTableFormatDialogDimension" timestamp="1669822388111">
+    <state x="586" y="374" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1536.920@0.0.1536.920" timestamp="1671529653057" />
+    <state x="349" y="115" key="editAsTableFormatDialogDimension" timestamp="1674728505466">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
-    <state x="349" y="115" key="editAsTableFormatDialogDimension/0.0.1536.920@0.0.1536.920" timestamp="1669822388111" />
+    <state x="349" y="115" key="editAsTableFormatDialogDimension/0.0.1536.920@0.0.1536.920" timestamp="1674728505466" />
     <state x="498" y="202" width="672" height="538" key="search.everywhere.popup" timestamp="1668628708770">
       <screen x="0" y="0" width="1536" height="920" />
     </state>
     <state x="498" y="202" width="672" height="538" key="search.everywhere.popup/0.0.1536.920@0.0.1536.920" timestamp="1668628708770" />
-    <state x="623" y="255" width="672" height="678" key="search.everywhere.popup/0.0.1920.1160@0.0.1920.1160" timestamp="1663674413934" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -360,14 +429,59 @@
           <option name="timeStamp" value="132" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/optimization/monte_carlo_cfsearch.py</url>
-          <line>27</line>
-          <option name="timeStamp" value="146" />
+          <url>file://$PROJECT_DIR$/src/models/nbhd.py</url>
+          <line>59</line>
+          <option name="timeStamp" value="134" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/models/nbhd.py</url>
+          <line>57</line>
+          <option name="timeStamp" value="136" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/optimization/genetic_baseline.py</url>
-          <line>68</line>
-          <option name="timeStamp" value="196" />
+          <line>70</line>
+          <option name="timeStamp" value="154" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/optimization/genetic_baseline.py</url>
+          <line>73</line>
+          <option name="timeStamp" value="155" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/objectives/rl_objs.py</url>
+          <line>64</line>
+          <option name="timeStamp" value="213" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/optimization/mcts.py</url>
+          <line>94</line>
+          <option name="timeStamp" value="225" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/optimization/mcts.py</url>
+          <line>97</line>
+          <option name="timeStamp" value="226" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/optimization/mcts.py</url>
+          <line>103</line>
+          <option name="timeStamp" value="229" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/optimization/mcts.py</url>
+          <line>100</line>
+          <option name="timeStamp" value="230" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/optimization/genetic_baseline.py</url>
+          <line>22</line>
+          <option name="timeStamp" value="247" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/evaluate_user_study.py</url>
+          <line>76</line>
+          <option name="timeStamp" value="259" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -385,7 +499,10 @@
     </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/temporalCFs$evaluate_user_study.coverage" NAME="evaluate_user_study Coverage Results" MODIFIED="1674734943586" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/temporalCFs$test.coverage" NAME="test Coverage Results" MODIFIED="1666282525625" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/temporalCFs$main.coverage" NAME="main Coverage Results" MODIFIED="1669911562773" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/temporalCFs$refactor.coverage" NAME="refactor Coverage Results" MODIFIED="1674728485917" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/temporalCFs$main.coverage" NAME="main Coverage Results" MODIFIED="1674855386633" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/temporalCFs$evaluate.coverage" NAME="evaluate Coverage Results" MODIFIED="1674728739504" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

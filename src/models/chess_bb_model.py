@@ -14,8 +14,13 @@ class ChessBBModel:
         fen = self.env.from_array_to_fen(x)
         board = chess.Board(fen)
 
-        self.stockfish.set_fen_position(board.fen())
+        self.stockfish = Stockfish(path=self.model_path, depth=18,
+                                   parameters={"Threads": 2, "Minimum Thinking Time": 30})
 
-        action = self.stockfish.get_best_move()
+        try:
+            self.stockfish.set_fen_position(board.fen())
+            action = self.stockfish.get_best_move_time(1000)
+        except:
+            action = ''
 
         return action

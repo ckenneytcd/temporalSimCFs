@@ -297,10 +297,10 @@ class Gridworld(gym.Env):
     def actionable(self, x, fact):
         monster = list(np.where(fact == self.OBJECTS['MONSTER'])[0])
 
-        if len(monster) == 0:
+        if len(monster) != 1:
             return False
 
-        return abs(x[monster] == self.OBJECTS['MONSTER'])
+        return abs(x[monster] == self.OBJECTS['MONSTER']).item()
 
     def generate_state_from_json(self, json_dict):
         agent = json_dict['agent']

@@ -11,7 +11,7 @@ from src.models.counterfactual import CF
 
 class GeneticBaseline:
 
-    def __init__(self, env, bb_model, dataset, obj):
+    def __init__(self, env, bb_model, dataset, obj, params):
         self.env = env
         self.bb_model = bb_model
         self.dataset = dataset
@@ -19,9 +19,12 @@ class GeneticBaseline:
 
         self.obj = obj
 
+        self.sample_size = params['gen_sample_size']
+        self.n_iter = params['gen_iter']
+
     def generate_counterfactuals(self, fact, target, nbhd):
         print('Generating counterfactuals...')
-        pop_size = 1000
+        pop_size = self.sample_size
 
         X = np.tile(fact, (pop_size, 1))
 
@@ -42,9 +45,9 @@ class GeneticBaseline:
 
         res = minimize(problem,
                        algorithm,
-                       ('n_gen', 30),
+                       ('n_gen', self.n_iter),
                        seed=1,
-                       verbose=False)
+                       verbose=True)
 
         solutions = res.pop.get('X')
         F = res.pop.get('F')

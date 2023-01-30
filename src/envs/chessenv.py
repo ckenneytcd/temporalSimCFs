@@ -13,6 +13,9 @@ class ChessEnv(gym.Env):
 
         self.state_dim = 64 + 1
 
+        self.lows = np.zeros((self.state_dim, ))
+        self.highs = np.array([12] * self.state_dim)
+
         self.expert = expert
 
     def step(self, action):
@@ -93,6 +96,7 @@ class ChessEnv(gym.Env):
     def set_state(self, state):
         fen = self.from_array_to_fen(state)
         self.board = chess.Board(fen)
+        self.state = state
 
     def check_done(self, state):
         fen = self.from_array_to_fen(state)
@@ -115,15 +119,16 @@ class ChessEnv(gym.Env):
         expert.set_fen_position(new_fen)
 
         try:
-            win_new = expert.get_wdl_stats()[0] / 1000.0
-        except AttributeError:
+            win_new = expert.get_wdl_stats()
+            win_new = win_new[0] / 1000.0
+        except TypeError:
             board = chess.Board(new_fen)
             if board.is_checkmate():
                 win_new = 0
             else:
                 win_new = 0.5
 
-        return win_new - win_old
+        return min(win_old - win_new, 0)
 
     def from_array_to_fen(self, array):
         board = chess.Board(fen=None)  # initializing empty board
