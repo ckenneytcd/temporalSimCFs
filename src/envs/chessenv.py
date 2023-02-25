@@ -111,7 +111,7 @@ class ChessEnv(gym.Env):
         old_fen = self.from_array_to_fen(state)
         new_fen = self.from_array_to_fen(new_state)
 
-        expert = Stockfish('trained_models/stockfish_15.exe')
+        expert = Stockfish('/usr/local/Cellar/stockfish/15.1/bin/stockfish')
         expert.set_fen_position(old_fen)
 
         win_old = expert.get_wdl_stats()[0] / 1000.0  # TODO: this should depend on the players whose turn it is

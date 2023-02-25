@@ -23,7 +23,7 @@ from src.utils.utils import seed_everything, load_fact
 def main():
     seed_everything(seed=1)
 
-    task_name = 'chess'
+    task_name = 'gridworld'
 
     # define paths
     model_path = 'trained_models/{}'.format(task_name)
@@ -37,7 +37,7 @@ def main():
         enc_layers = [env.state_dim, 128, 16]
         max_actions = 5
     elif task_name == 'chess':
-        engine_path = 'trained_models/stockfish_15.exe'
+        engine_path = '/usr/local/Cellar/stockfish/15.1/bin/stockfish'
         engine = chess.engine.SimpleEngine.popen_uci(engine_path)
         env = ChessEnv(engine)
         enc_layers = [env.state_dim, 512, 512, 32]
@@ -88,7 +88,7 @@ def main():
         eval_path = 'eval/{}/{}/rl_obj_results'.format(task_name, method_names[i])
         gen_nbhd = True if method_names[i] == 'BO_GEN' else False
         task = Task(task_name, env, bb_model, dataset, m, method_names[i], rl_obj, [rl_obj, baseline_obj], eval_path, nbhd=gen_nbhd)
-        task.run_experiment(facts[10:50], targets[10:50])
+        task.run_experiment(facts, targets)
 
 
 if __name__ == '__main__':

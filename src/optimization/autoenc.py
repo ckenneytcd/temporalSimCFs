@@ -76,6 +76,7 @@ class AutoEncoder(nn.Module):
         lr=1e-3,
         batch_size=64,
     ):
+        
         if isinstance(xtrain, pd.DataFrame):
             xtrain = xtrain.values
 
@@ -92,7 +93,7 @@ class AutoEncoder(nn.Module):
         )
 
         self.train()
-
+        
         self.criterion = nn.MSELoss()
 
         # Train the VAE with the new prior
@@ -103,17 +104,20 @@ class AutoEncoder(nn.Module):
             # Initialize the losses
             train_loss = 0
             train_loss_num = 0
-
+            
             # Train for all the batches
             for data in train_loader:
                 data = data.view(data.shape[0], -1)
                 data = data.float()
-
+                #print("HERE")
                 # forward pass
+                #print(len(data))
+                #print(len(data[0]))
+
                 reconstruction = self(data)
-
+                #print("NOT HERE")
                 loss = self.criterion(reconstruction, data)
-
+                
                 # Update the parameters
                 optimizer.zero_grad()
                 # Compute the loss

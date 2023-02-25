@@ -51,6 +51,7 @@ class Gridworld(gym.Env):
 
     def create_state(self, agent, monster, trees, chopping, chopped_trees=[], killed_monster=False):
         state = [0.0] * self.state_dim
+        print(state)
         state[-1] = chopping
         state[agent] = self.OBJECTS['AGENT']
 

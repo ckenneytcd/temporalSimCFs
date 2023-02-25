@@ -45,24 +45,44 @@ class Task:
             else:
                 ts = [targets[i]]
 
-            for t in ts:
-                print('FACT: Target = {}'.format(t))
-                self.env.render_state(f)
+            if self.task_name == 'taxi':
+                for t in ts:
+                    print('FACT: Target = {}'.format(t))
+                    self.env.render_show(f[0])
 
-                cf = self.method.generate_counterfactuals(f, t, nbhd)
+                    cf = self.method.generate_counterfactuals(f, t, nbhd)
 
-                if cf is None:
-                    found = False
-                    self.evaluate_cf(f, t, cf, found)
-                    continue
-                else:
-                    found = True
-                    self.evaluate_cf(f, t, cf, found)
+                    if cf is None:
+                        found = False
+                        self.evaluate_cf(f, t, cf, found)
+                        continue
+                    else:
+                        found = True
+                        self.evaluate_cf(f, t, cf, found)
 
-                    print('CF:')
-                    self.env.render_state(cf.cf_state)
+                        print('CF:')
+                        self.env.render_show(cf.cf_state)
 
-                    cnt += 1
+                        cnt += 1
+            else:
+                for t in ts:
+                    print('FACT: Target = {}'.format(t))
+                    self.env.render_state(f)
+
+                    cf = self.method.generate_counterfactuals(f, t, nbhd)
+
+                    if cf is None:
+                        found = False
+                        self.evaluate_cf(f, t, cf, found)
+                        continue
+                    else:
+                        found = True
+                        self.evaluate_cf(f, t, cf, found)
+
+                        print('CF:')
+                        self.env.render_state(cf.cf_state)
+
+                        cnt += 1
 
     def get_targets(self, f, env, bb_model):
         pred = bb_model.predict(f)

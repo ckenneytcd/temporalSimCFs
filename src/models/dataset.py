@@ -26,15 +26,51 @@ class Dataset:
                 c = 0
                 while (not done) and (c < 50):
                     c += 1
-                    ds.append(list(obs))
+                    if dataset_path == 'datasets/taxi/dataset.csv':
+                        desc = env.desc.copy().tolist()
+                        out = [[c.decode("utf-8") for c in line] for line in desc]
+                        taxi_row, taxi_col, pass_idx, dest_idx = env.decode(obs[0])
+                        out.pop(0)
+                        out.pop(5)
+                        for row in out:
+                            for char in row:  
+                                if char == '+' or char == '|' or char == ':':
+                                    row.remove(char)
+
+                        print(taxi_row, ',', taxi_col)
+                        out[taxi_row][taxi_col] = 'T'+out[taxi_row][taxi_col]
+
+                        char_to_int_mapping = {'R':0, 'G':1, 'Y':2, 'B':3, 'T ':4, ' ':5, 'TR':6, 'TG':7, 'TY':8, 'TB':9}
+                        int_arr = [obs[0]]
+                        for row in out:
+                            for char in row:
+                                int_arr.append(char_to_int_mapping[char])
+                        print(int_arr)
+                        ds.append(int_arr)
+                        #ds.append([obs[0]])
+                    else:
+                        ds.append(list(obs))
                     rand = np.random.randint(0, 2)
                     if rand == 0:
                         action = model.predict(obs)
                     else:
                         action = np.random.choice(env.get_actions(obs))
-
-                    obs, rew, done,  _ = env.step(action)
-
+                    if dataset_path == 'datasets/taxi/dataset.csv':
+                        obs, rew, done,  _ = env.stepds(action)
+                        print(list(env.decode(obs[0])))
+                    else:
+                        obs, rew, done,  _ = env.step(action)
+                        print(obs)
+                    
+                    # if len(list(obs)) > 1:
+                    #     print(i)
+                    #     print('\n') 
+                    #print(c, rand, action, obs)
+            print(ds)     
+            # for i in ds:
+            #     if len(i) > 1:
+            #         print(i)
+            #         print('\n')     
             df = pd.DataFrame(ds)
             df = df.drop_duplicates()
 
